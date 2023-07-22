@@ -5,23 +5,62 @@ import matplotlib.pyplot as plt
 import os
 import math
 import re
+from typing import List, Set
 
 
-DIR_NAME = r'd:\Temp\ВМЦ-61.2ЖК\ВМЦ-61.2ЖК 1903103\Доработка 2 (Поменяли стекло)\LVDS ГП'
+DIR_NAME = r'd:\Temp\ВМЦ-61.2ЖК\ВМЦ-61.2ЖК 1903103\Доработка 2 (Поменяли стекло)\LVDS ВП'
 
 
-def get_angle(file_name):
-    angle = re.findall(r'\((\d+)\)', file_name)[0]
+def get_angle_from_filename(filename):
+    angle = re.findall(r'\((\d+)\)', filename)[0]
     return angle
+
+
+# TODO: Рефакторинг, нахер надо постоянно гонять имя файла и папки, надо сделать для этого класс походу
+def get_frequency_set(dir_name: str, file_list: List[str]) -> List[float]:
+    frequency_set = set()
+    for filename in file_list:
+        frequencies = pd.read_csv(os.path.join(dir_name, filename), sep='\t', encoding='cp1251', usecols=[1],
+                                  skiprows=2).values
+        for freq in frequencies:
+            frequency_set.add(freq[0])
+    frequency_list = list(sorted(frequency_set))
+    return frequency_list
 
 
 def read_data_frame(dir_name: str) -> pd.DataFrame:
     file_list = os.listdir(dir_name)
+
+    # Получить список всех частот из всех файлов
+    frequencies = get_frequency_set(dir_name, file_list)
+
+    # Инициировать DataFrame сигналов и шумов с частотами в качестве индексов
+    signal_data_frame = pd.DataFrame(index=np.array(frequencies))
+    noise_data_frame = pd.DataFrame(index=np.array(frequencies))
+
+    # Перебрать все файлы и вычитать есть ли в них данные на тех частотах, список которых нашли ранее
+    for filename in file_list:
+        # получить величину угла из названия файла
+        angle = get_angle_from_filename(filename)
+
+        # прочитать данные частоты, уровня сигнала и шума из файла
+        # частоты установить в качестве индексов DataFrame
+        file_dataframe = pd.read_csv(os.path.join(dir_name, filename), sep='\t', encoding='cp1251', usecols=[1, 2, 3],
+                                     skiprows=1, index_col=0)
+
+        # заполнить ДатаФреймы сигналов и шумов
+        for frequency in file_dataframe.index.values:
+            signal_data_frame.at[frequency, angle] = file_dataframe.loc[frequency][0]
+            noise_data_frame.at[frequency, angle] = file_dataframe.loc[frequency][1]
+
+    # Пересмотреть все данные в ДатаФрейме сигналов(signal_data_frame), и вместо значений NaN установить
+    # значение минимального шума на этой частоте из ДатаФрейма шумов(noise_data_frame)
+
     data_set = pd.read_csv(os.path.join(dir_name, file_list[0]), sep='\t', encoding='cp1251', usecols=[1], skiprows=2,
                            names=['F, MHz'])
     angles = []
     for path in file_list:
-        angle = get_angle(path)
+        angle = get_angle_from_filename(path)
         data_set[angle] = pd.read_csv(os.path.join(dir_name, path), sep='\t', encoding='cp1251', usecols=[2],
                                       skiprows=1)
         angles.append(int(angle))
@@ -68,4 +107,4 @@ if __name__ == '__main__':
     make_plot(df)
 
     plt.savefig(DIR_NAME + '_plot.png', dpi=600)
-    plt.show()
+    # plt.show()
