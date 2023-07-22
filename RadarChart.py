@@ -8,12 +8,17 @@ import re
 from typing import List, Set
 
 
-DIR_NAME = r'd:\Temp\ВМЦ-61.2ЖК\ВМЦ-61.2ЖК 1903103\Доработка 2 (Поменяли стекло)\LVDS ВП'
+DIR_NAME = r'd:\Temp\ВМЦ-61.2ЖК\ВМЦ-61.2ЖК 1903103\LVDS\ВП'
 
 
 def get_angle_from_filename(filename):
     angle = re.findall(r'\((\d+)\)', filename)[0]
     return angle
+
+
+def get_angle_from_filename_new(filename):
+    angle = re.findall(r'\((\d+)\)', filename)[0]
+    return int(angle)
 
 
 # TODO: Рефакторинг, нахер надо постоянно гонять имя файла и папки, надо сделать для этого класс походу
@@ -28,7 +33,7 @@ def get_frequency_set(dir_name: str, file_list: List[str]) -> List[float]:
     return frequency_list
 
 
-def read_data_frame(dir_name: str) -> pd.DataFrame:
+def read_data_frame_new(dir_name: str) -> pd.DataFrame:
     file_list = os.listdir(dir_name)
 
     # Получить список всех частот из всех файлов
@@ -41,7 +46,7 @@ def read_data_frame(dir_name: str) -> pd.DataFrame:
     # Перебрать все файлы и вычитать есть ли в них данные на тех частотах, список которых нашли ранее
     for filename in file_list:
         # получить величину угла из названия файла
-        angle = get_angle_from_filename(filename)
+        angle = get_angle_from_filename_new(filename)
 
         # прочитать данные частоты, уровня сигнала и шума из файла
         # частоты установить в качестве индексов DataFrame
@@ -55,6 +60,19 @@ def read_data_frame(dir_name: str) -> pd.DataFrame:
 
     # Пересмотреть все данные в ДатаФрейме сигналов(signal_data_frame), и вместо значений NaN установить
     # значение минимального шума на этой частоте из ДатаФрейма шумов(noise_data_frame)
+    for angle in signal_data_frame:
+        for frequency in signal_data_frame[angle].index.values:
+            if np.isnan(signal_data_frame[angle][frequency]):
+                signal_data_frame[angle][frequency] = noise_data_frame.loc[frequency].min()
+
+    signal_transpose_data_frame = signal_data_frame.sort_index().T
+    sorted_signal_transpose_data_frame = signal_transpose_data_frame.sort_index()
+
+    return sorted_signal_transpose_data_frame
+
+
+def read_data_frame(dir_name: str) -> pd.DataFrame:
+    file_list = os.listdir(dir_name)
 
     data_set = pd.read_csv(os.path.join(dir_name, file_list[0]), sep='\t', encoding='cp1251', usecols=[1], skiprows=2,
                            names=['F, MHz'])
@@ -69,12 +87,16 @@ def read_data_frame(dir_name: str) -> pd.DataFrame:
     name_order = ['F, MHz']
     name_order.extend(angles_str)
     data_set = data_set[name_order]
-    print(data_set)
     return data_set.transpose()
 
 
 def get_max_y_lim(df: pd.DataFrame) -> int:
     max_y_value = df.transpose().max()[1:].max()
+    return math.ceil(max_y_value / 10) * 10
+
+
+def get_max_y_lim_new(df: pd.DataFrame) -> int:
+    max_y_value = df.max().max()
     return math.ceil(max_y_value / 10) * 10
 
 
@@ -99,12 +121,43 @@ def make_plot(df: pd.DataFrame) -> None:
         plt.title(f"Frequency - {data[0]} MHz ", loc='center')
 
 
+def make_plot_new(df: pd.DataFrame) -> None:
+    fig_cols = 3
+    fig_rows = math.ceil(df.shape[1] / fig_cols)
+    plt.figure(layout='constrained', figsize=(9, 18))
+    max_y_lim = get_max_y_lim_new(df)
+
+    angles = [int(v) for v in df.index.values]
+
+    for col_name, data in df.items():
+        axes = plt.subplot(fig_rows, fig_cols, df.columns.get_loc(col_name) + 1, projection='polar')
+        # TODO можно заменить np.deg2rad(angles) на data.index.values
+        plt.plot(np.deg2rad(angles), data, color='r', linewidth=1.8)
+        plt.plot((np.deg2rad(angles[-1]), np.deg2rad(angles[0])),
+                 (data[angles[-1]], data[angles[0]]), color='r', linewidth=1.8)
+        plt.ylim((0, max_y_lim))
+        axes.tick_params(axis='both', which='major', labelsize=10)
+        axes.set_yticks(np.arange(0, max_y_lim, 10))
+        axes.set_yticks(np.arange(0, max_y_lim, 5), minor=True)
+        axes.grid(which='minor', alpha=0.3)
+        axes.grid(which='major', alpha=0.9)
+        plt.title(f"Frequency - {data.name} MHz ", loc='center')
+
+
 if __name__ == '__main__':
     matplotlib.get_backend()
     matplotlib.use('TkAgg')
     df = read_data_frame(DIR_NAME)
+    # print(df)
 
-    make_plot(df)
+    # make_plot(df)
+
+    # plt.savefig(DIR_NAME + '_plot.png', dpi=600)
+    # plt.show()
+
+    df_new = read_data_frame_new(DIR_NAME)
+
+    make_plot_new(df_new)
 
     plt.savefig(DIR_NAME + '_plot.png', dpi=600)
-    # plt.show()
+    plt.show()
