@@ -8,7 +8,10 @@ import re
 from typing import List, Set
 
 
-DIR_NAME = r'd:\Temp\ВМЦ-61.2ЖК\ВМЦ-61.2ЖК 1903103\LVDS\ВП'
+DIR_NAME = r'd:\Temp\ВМЦ-61.2ЖК\ВМЦ-61.2ЖК 1903103\Доработка 3 (Матрица обклеена лентой)\LVDS ГП'
+
+# TODO: Добавить возможность расчета из другой папки со сравнением на соответствующих графиках
+# DIR2_NAME
 
 
 def get_angle_from_filename(filename):
@@ -63,7 +66,7 @@ def read_data_frame_new(dir_name: str) -> pd.DataFrame:
     for angle in signal_data_frame:
         for frequency in signal_data_frame[angle].index.values:
             if np.isnan(signal_data_frame[angle][frequency]):
-                signal_data_frame[angle][frequency] = noise_data_frame.loc[frequency].min()
+                signal_data_frame[angle][frequency] = noise_data_frame.loc[frequency].max()
 
     signal_transpose_data_frame = signal_data_frame.sort_index().T
     sorted_signal_transpose_data_frame = signal_transpose_data_frame.sort_index()
