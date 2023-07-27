@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import os
 import math
 import re
-from typing import List
+from typing import List, Tuple
 
 
 DIR_NAME = r'd:\Temp\ВМЦ-61.2ЖК\ВМЦ-61.2ЖК 1903103\Доработка 3 (Матрица обклеена лентой)\LVDS ГП'
@@ -31,8 +31,30 @@ def read_frequency_set(dir_name: str, file_list: List[str]) -> List[float]:
     return frequency_list
 
 
+def get_angle_and_r2_from_filename(filename: str) -> Tuple[float, float]:
+    angle = float(re.findall(r'\((\d+)\)', filename)[0])
+    r2 = float(re.findall(r'\) (\d+)', filename)[0])
+
+    return angle, r2
+
+
+def read_data_frame_new(dir_name: str) -> pd.DataFrame:
+    """ Чтение данных из всех файлов каталога """
+
+    file_list = os.listdir(dir_name)
+
+    # Перебрать названия всех файлов папки и выбрать из них угол, на котором проводились измерения, и радиус зоны R2
+    for filename in file_list:
+        angle, r2 = get_angle_and_r2_from_filename(filename)
+
+        print(angle, r2)
+
+    return None
+
+
 def read_data_frame(dir_name: str) -> pd.DataFrame:
     """ Чтение данных из всех файлов каталога """
+
     file_list = os.listdir(dir_name)
 
     # Получить список всех частот из всех файлов
@@ -119,9 +141,9 @@ if __name__ == '__main__':
     matplotlib.get_backend()
     matplotlib.use('TkAgg')
 
-    df_new = read_data_frame(DIR_NAME)
+    df_new = read_data_frame_new(DIR_NAME)
 
-    make_plot(df_new)
-
-    plt.savefig(DIR_NAME + '_plot.png', dpi=400)
-    plt.show()
+    # make_plot(df_new)
+    #
+    # plt.savefig(DIR_NAME + '_plot.png', dpi=400)
+    # plt.show()
