@@ -8,7 +8,6 @@ DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\19
 # TODO: Добавить возможность расчета из другой папки со сравнением на соответствующих графиках
 DIR2_NAME =r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 3 (Матрица обклеена лентой)\LVDS ВП'
 
-
 if __name__ == '__main__':
     matplotlib.get_backend()
     matplotlib.use('TkAgg')
@@ -17,4 +16,7 @@ if __name__ == '__main__':
     data2 = RadarData(DIR2_NAME)
 
     plotter = RadarPlotter(data1, data2)
+    plotter.show()
+    plotter.save()
+
 

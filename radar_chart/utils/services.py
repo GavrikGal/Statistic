@@ -4,6 +4,7 @@ import pandas as pd
 import pathlib
 import re
 from typing import List, Tuple
+from collections import namedtuple
 
 
 class RadarData(object):
@@ -36,14 +37,20 @@ class RadarData(object):
         :return: ДатаСерия с углами, в качестве индексов, и R2, в качестве значений
         """
 
-        angles, r2_list = [], []
+        data_set = {}
         # Перебрать названия всех файлов папки и выбрать из них угол,
         # на котором проводились измерения, и радиус зоны R2
         for filename in self.files:
             angle, r2 = self._get_angle_and_r2_from_filename(filename)
-            angles.append(angle)
-            r2_list.append(r2)
-        return pd.Series(r2_list, index=angles).sort_index()
+            data_set[np.deg2rad(angle)] = r2
+
+        # Создать объект данных pandas и отсортировать его
+        data = pd.Series(data_set).sort_index()
+
+        # Добавить в конец ДатаСерии данные начальной точки, чтобы график замкнулся
+        data = pd.concat([data, data[:1]])
+
+        return data
 
     @staticmethod
     def _get_angle_and_r2_from_filename(filename: str) -> Tuple[float, float]:
@@ -68,18 +75,30 @@ class RadarPlotter(object):
         :param radar_data: данные о R2 по углам
         :param radar_data2: второй набор данных о R2 для сравнения с первым
         """
-        self.data: pd.Series = radar_data.data
-        self.data2: pd.Series = radar_data.data
-        self.plt = plt
-        self.plt.figure(layout='constrained', figsize=(5, 6))   # Размер холста
+        self.rdata: RadarData = radar_data
+        self.rdata2: RadarData = radar_data2
 
-        # Добавить в конец ДатаСерии данные начальной точки, чтобы график замкнулся
-        print(self.data)
-        first = self.data.loc[0]
-        print(type(first))
-        # data = pd.concat([self.data, self.data[0]])
-        # print(data)
+        # Настройки стилей линий зависят от наличия второго набора данных
+        Line = namedtuple('Properties', 'color style width')
+        if self.rdata2 is not None:
+            line1 = Line('b', '--', 1.2)
+            line2 = Line('r', '-', 1.5)
+        else:
+            line1 = Line('r', '-', 1.5)
+            line2 = None
 
-        # Получение списка углов из значений индексов ДатаФрейма
-        angles = self.data.index.values
-        self.plt.plot(np.deg2rad(angles), self.data, color='r', linewidth=1.8)
+        fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+
+        # Построение линнии первых данных
+        ax.plot(self.rdata.data, color=line1.color, linewidth=line1.width, linestyle=line1.style)
+
+        # Если есть данные для сравнения, то сравнить их
+        if self.rdata2 is not None:
+            ax.plot(self.rdata2.data, color=line2.color, linewidth=line2.width, linestyle=line2.style)
+
+    @staticmethod
+    def show():
+        plt.show()
+
+    def save(self):
+        plt.savefig(self.rdata.dir.joinpath('plot.png'), dpi=300)
