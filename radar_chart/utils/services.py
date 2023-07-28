@@ -1,30 +1,27 @@
-import numpy as np
 import pandas as pd
-import matplotlib
-import matplotlib.pyplot as plt
-import os
 import pathlib
-import math
 import re
 from typing import List, Tuple
 
 
-DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 2 (Поменяли стекло)\LVDS ВП'
-
-# TODO: Добавить возможность расчета из другой папки со сравнением на соответствующих графиках
-DIR2_NAME =r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 3 (Матрица обклеена лентой)\LVDS ВП'
-
-
 class RadarData(object):
+    """Класс данных для круговых диаграмм зон R2 по углам"""
+
     def __init__(self, dir_path: str):
+        """
+        Подготавливает данные о зонах R2 (на всех углах измерения) для отображения их на круговых диаграммах
+
+        :param dir_path: путь к папке со списком файлов данных
+        """
         self.dir: pathlib.Path = pathlib.Path(dir_path)
-        self.files: List[str] = self._read_filenames()      # Прочитать список файлов из рабочей папки
-        self.data: pd.Series = self._make_data()            # Собрать данные по R2 из списка файлов
+        self.files: List[str] = self._read_filenames()
+        self.data: pd.Series = self._make_data()
 
     def _read_filenames(self) -> List[str]:
         """
         Прочитать список файлов из заданной папки
-        :return: список файлов
+
+        :return: список текстовых файлов
         """
         file_list = [file.name for file in self.dir.iterdir() if file.is_file() and file.name.endswith('.txt')]
         return file_list
@@ -33,6 +30,7 @@ class RadarData(object):
         """
         Читает имя каждого файла из списка self.files парсит в нем угол, на котором проводились измерения, и
         результат рассчитанной зоны R2. Из этих данных формирует ДатаСерию для всех положений (углов) измерений
+
         :return: ДатаСерия с углами, в качестве индексов, и R2, в качестве значений
         """
 
@@ -49,6 +47,7 @@ class RadarData(object):
     def _get_angle_and_r2_from_filename(filename: str) -> Tuple[float, float]:
         """
         Парсит имя файла на угол, на котором проводились измерения, и результат рассчитанной зоны R2
+
         :param filename: имя файла
         :return: угол, R2
         """
@@ -57,9 +56,5 @@ class RadarData(object):
         return angle, r2
 
 
-if __name__ == '__main__':
-    matplotlib.get_backend()
-    matplotlib.use('TkAgg')
-
-    data1 = RadarData(DIR_NAME)
-    data2 = RadarData(DIR2_NAME)
+class RadarPlotter(object):
+    """"""
