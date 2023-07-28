@@ -3,11 +3,11 @@ import matplotlib
 from utils.services import RadarData, RadarPlotter
 
 
-DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 2 (Поменяли стекло)\LVDS ВП'
+DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 2 (Поменяли стекло)\LVDS ГП'
 DIR2_NAME = None
 
 # Если надо отрубить второй набор данных, то комментить следующую строчку
-DIR2_NAME =r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 3 (Матрица обклеена лентой)\LVDS ВП'
+DIR2_NAME =r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 3 (Матрица обклеена лентой)\LVDS ГП'
 
 if __name__ == '__main__':
     matplotlib.get_backend()
@@ -19,6 +19,6 @@ if __name__ == '__main__':
     else:
         data2 = None
 
-    plotter = RadarPlotter(data1, data2)
+    plotter = RadarPlotter(data1, data2, y_max=15)
     plotter.show()
-    plotter.save()
+    plotter.save(r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 3 (Матрица обклеена лентой)\LVDS ГП [доработка2, доработка3]')

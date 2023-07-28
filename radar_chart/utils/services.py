@@ -48,7 +48,7 @@ class RadarData(object):
         data = pd.Series(data_set).sort_index()
 
         # Добавить в конец ДатаСерии данные начальной точки, чтобы график замкнулся
-        data = pd.concat([data, data[:1]])
+        data = pd.concat([data, data[:0]])
 
         return data
 
@@ -68,7 +68,7 @@ class RadarData(object):
 class RadarPlotter(object):
     """Класс построителя круговых диаграмм по подготовленным данным о зонах R2 в RadarData"""
 
-    def __init__(self, radar_data: RadarData, radar_data2: RadarData = None):
+    def __init__(self, radar_data: RadarData, radar_data2: RadarData = None, y_max: int = None):
         """
         Подготавливает графики с зонами R2 к отображению
 
@@ -81,13 +81,17 @@ class RadarPlotter(object):
         # Настройки стилей линий зависят от наличия второго набора данных
         Line = namedtuple('Properties', 'color style width')
         if self.rdata2 is not None:
-            line1 = Line('b', '--', 1.2)
-            line2 = Line('r', '-', 1.5)
+            line1 = Line('b', '--', 1.1)
+            line2 = Line('r', '-', 1.6)
         else:
-            line1 = Line('r', '-', 1.5)
+            line1 = Line('r', '-', 1.6)
             line2 = None
 
         fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+
+        # Настройка максимальной величины оси уровней R2
+        if y_max is not None:
+            plt.ylim((0, y_max))
 
         # Построение линнии первых данных
         ax.plot(self.rdata.data, color=line1.color, linewidth=line1.width, linestyle=line1.style)
@@ -100,5 +104,8 @@ class RadarPlotter(object):
     def show():
         plt.show()
 
-    def save(self):
-        plt.savefig(self.rdata.dir.joinpath('plot.png'), dpi=300)
+    def save(self, path: str = None):
+        if path is None:
+            plt.savefig(self.rdata.dir.joinpath('plot.png'), dpi=300)
+        else:
+            plt.savefig(pathlib.Path(path), dpi=300)
