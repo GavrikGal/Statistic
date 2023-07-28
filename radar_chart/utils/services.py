@@ -1,3 +1,5 @@
+import numpy as np
+import matplotlib.pyplot as plt
 import pandas as pd
 import pathlib
 import re
@@ -57,4 +59,27 @@ class RadarData(object):
 
 
 class RadarPlotter(object):
-    """"""
+    """Класс построителя круговых диаграмм по подготовленным данным о зонах R2 в RadarData"""
+
+    def __init__(self, radar_data: RadarData, radar_data2: RadarData = None):
+        """
+        Подготавливает графики с зонами R2 к отображению
+
+        :param radar_data: данные о R2 по углам
+        :param radar_data2: второй набор данных о R2 для сравнения с первым
+        """
+        self.data: pd.Series = radar_data.data
+        self.data2: pd.Series = radar_data.data
+        self.plt = plt
+        self.plt.figure(layout='constrained', figsize=(5, 6))   # Размер холста
+
+        # Добавить в конец ДатаСерии данные начальной точки, чтобы график замкнулся
+        print(self.data)
+        first = self.data.loc[0]
+        print(type(first))
+        # data = pd.concat([self.data, self.data[0]])
+        # print(data)
+
+        # Получение списка углов из значений индексов ДатаФрейма
+        angles = self.data.index.values
+        self.plt.plot(np.deg2rad(angles), self.data, color='r', linewidth=1.8)

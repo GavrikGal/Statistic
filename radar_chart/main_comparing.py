@@ -1,6 +1,6 @@
 import matplotlib
 
-from utils.services import RadarData
+from utils.services import RadarData, RadarPlotter
 
 
 DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 2 (Поменяли стекло)\LVDS ВП'
@@ -15,4 +15,6 @@ if __name__ == '__main__':
 
     data1 = RadarData(DIR_NAME)
     data2 = RadarData(DIR2_NAME)
+
+    plotter = RadarPlotter(data1, data2)
 
