@@ -58,22 +58,20 @@ class RadarDataFrame(BaseRadarData):
 
         # Получить список всех частот из всех файлов
         frequencies = self._read_frequency_set()
-        print(frequencies)
-
 
         # Инициировать DataFrame сигналов и шумов с частотами в качестве индексов
         signal_data_frame = pd.DataFrame(index=np.array(frequencies))
         noise_data_frame = pd.DataFrame(index=np.array(frequencies))
 
         # Перебрать все файлы и вычитать есть ли в них данные на тех частотах, список которых нашли ранее
-        for filename in file_list:
+        for filename in self.files:
             # получить величину угла из названия файла
-            angle = get_angle_from_filename(filename)
+            angle = self._get_angle_from_filename(filename)
 
             # прочитать данные частоты, уровня сигнала и шума из файла
             # частоты установить в качестве индексов DataFrame
-            file_dataframe = pd.read_csv(os.path.join(dir_name, filename), sep='\t', encoding='cp1251', usecols=[1, 2, 3],
-                                         skiprows=1, index_col=0)
+            file_dataframe = pd.read_csv(os.path.join(self.dir, filename), sep='\t', encoding='cp1251',
+                                         usecols=[1, 2, 3], skiprows=1, index_col=0)
 
             # заполнить ДатаФреймы сигналов и шумов
             for frequency in file_dataframe.index.values:
@@ -200,7 +198,6 @@ if __name__ == '__main__':
     matplotlib.use('TkAgg')
 
     df_new = RadarDataFrame(DIR_NAME)
-    print(df_new.data)
 
     make_plot(df_new.data)
 
