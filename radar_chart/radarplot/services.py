@@ -2,12 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import pathlib
-import re
-from typing import List, Tuple
 from collections import namedtuple
 
+from .utils.base_radar_data import BaseRadarData
 
-class RadarData(object):
+
+class RadarData(BaseRadarData):
     """Класс данных для круговых диаграмм зон R2 по углам"""
 
     def __init__(self, dir_path: str):
@@ -16,18 +16,7 @@ class RadarData(object):
 
         :param dir_path: путь к папке со списком файлов данных
         """
-        self.dir: pathlib.Path = pathlib.Path(dir_path)
-        self.files: List[str] = self._read_filenames()
-        self.data: pd.Series = self._make_data()
-
-    def _read_filenames(self) -> List[str]:
-        """
-        Прочитать список файлов из заданной папки
-
-        :return: список текстовых файлов
-        """
-        file_list = [file.name for file in self.dir.iterdir() if file.is_file() and file.name.endswith('.txt')]
-        return file_list
+        BaseRadarData.__init__(self, dir_path)
 
     def _make_data(self) -> pd.Series:
         """
@@ -41,7 +30,8 @@ class RadarData(object):
         # Перебрать названия всех файлов папки и выбрать из них угол,
         # на котором проводились измерения, и радиус зоны R2
         for filename in self.files:
-            angle, r2 = self._get_angle_and_r2_from_filename(filename)
+            angle = self._get_angle_from_filename(filename)
+            r2 = self._get_r2_from_filename(filename)
             data_set[np.deg2rad(angle)] = r2
 
         # Создать объект данных pandas и отсортировать его
@@ -51,18 +41,6 @@ class RadarData(object):
         data = pd.concat([data, data[:0]])
 
         return data
-
-    @staticmethod
-    def _get_angle_and_r2_from_filename(filename: str) -> Tuple[float, float]:
-        """
-        Парсит имя файла на угол, на котором проводились измерения, и результат рассчитанной зоны R2
-
-        :param filename: имя файла
-        :return: угол, R2
-        """
-        angle = float(re.findall(r'\((\d+)\)', filename)[0])
-        r2 = float(re.findall(r'\) (\d+)', filename)[0])
-        return angle, r2
 
 
 class RadarPlotter(object):
