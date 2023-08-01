@@ -1,6 +1,6 @@
 import matplotlib
 
-from radarplot.services import RadarData, RadarPlotter
+from radarplot.services import RadarDataR2, RadarPlotter
 
 
 DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 2 (Поменяли стекло)\LVDS ГП'
@@ -13,9 +13,9 @@ if __name__ == '__main__':
     matplotlib.get_backend()
     matplotlib.use('TkAgg')
 
-    data1 = RadarData(DIR_NAME)
+    data1 = RadarDataR2(DIR_NAME)
     if DIR2_NAME is not None:
-        data2 = RadarData(DIR2_NAME)
+        data2 = RadarDataR2(DIR2_NAME)
     else:
         data2 = None
 

@@ -4,10 +4,10 @@ import pandas as pd
 import pathlib
 from collections import namedtuple
 
-from .utils.base_radar_data import BaseRadarData
+from .utils.base import BaseRadarData
 
 
-class RadarData(BaseRadarData):
+class RadarDataR2(BaseRadarData):
     """Класс данных для круговых диаграмм зон R2 по углам"""
 
     def __init__(self, dir_path: str):
@@ -46,15 +46,15 @@ class RadarData(BaseRadarData):
 class RadarPlotter(object):
     """Класс построителя круговых диаграмм по подготовленным данным о зонах R2 в RadarData"""
 
-    def __init__(self, radar_data: RadarData, radar_data2: RadarData = None, y_max: int = None):
+    def __init__(self, radar_data: RadarDataR2, radar_data2: RadarDataR2 = None, y_max: int = None):
         """
         Подготавливает графики с зонами R2 к отображению
 
         :param radar_data: данные о R2 по углам
         :param radar_data2: второй набор данных о R2 для сравнения с первым
         """
-        self.rdata: RadarData = radar_data
-        self.rdata2: RadarData = radar_data2
+        self.rdata: RadarDataR2 = radar_data
+        self.rdata2: RadarDataR2 = radar_data2
 
         # Настройки стилей линий зависят от наличия второго набора данных
         Line = namedtuple('Properties', 'color style width')
@@ -74,7 +74,7 @@ class RadarPlotter(object):
         # Построение линнии первых данных
         ax.plot(self.rdata.data, color=line1.color, linewidth=line1.width, linestyle=line1.style)
 
-        # Если есть данные для сравнения, то сравнить их
+        # Если есть данные для сравнения, то отобразить и их
         if self.rdata2 is not None:
             ax.plot(self.rdata2.data, color=line2.color, linewidth=line2.width, linestyle=line2.style)
 
