@@ -102,6 +102,6 @@ class BaseRadarPlotter(abc.ABC):
     def save(self, path: str = None):
         """сохранить график"""
         if path is None:
-            plt.savefig(self.rdata.dir.joinpath('plot.png'), dpi=300)
+            plt.savefig(self.rdata.dir.joinpath('plot.png'), dpi=400)
         else:
-            plt.savefig(pathlib.Path(path), dpi=300)
+            plt.savefig(pathlib.Path(path), dpi=400)

@@ -194,14 +194,21 @@ class RadarLevelsPlotter(BaseRadarPlotter):
             plt.ylim((0, self.y_max))
 
             # Построение линии на графике
-            plt.plot(data, color=self.line1.color, linewidth=self.line1.width)
+            min_color_ratio = 10
+            color_ratio = (data - min_color_ratio) / (self.rdata.data.max().max() - min_color_ratio)
+            colors = plt.cm.jet(color_ratio)
+            min_width_ratio = -10
+            width_ratio = (data - min_width_ratio) / (self.rdata.data.max().max() - min_width_ratio)
+            width = (2 * np.pi / data.shape[0]) * width_ratio
+            axes.bar(data.index.values, data, width=width, edgecolor='gray', color=colors, linewidth=0.2, zorder=3)
+            # plt.plot(data, color=self.line1.color, linewidth=self.line1.width)
 
             # Настройка сетки графика
             axes.tick_params(axis='both', which='major', labelsize=8)
             axes.set_yticks(np.arange(0, self.y_max, 10))
             axes.set_yticks(np.arange(0, self.y_max, 2), minor=True)
-            axes.grid(which='minor', alpha=0.2)
-            axes.grid(which='major', alpha=0.9)
+            axes.grid(which='minor', color='lightgray', linewidth=0.3, alpha=0.3)
+            axes.grid(which='major', linewidth=0.4, alpha=0.9)
 
             # Название текущего графика
             plt.title(f"Frequency - {data.name} MHz ", loc='center')
