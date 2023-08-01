@@ -1,6 +1,6 @@
 import matplotlib
 
-from radarplot.services import RadarDataR2, RadarPlotter
+from radarplot.services import RadarDataR2, RadarR2Plotter
 
 
 DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 2 (Поменяли стекло)\LVDS ГП'
@@ -19,6 +19,6 @@ if __name__ == '__main__':
     else:
         data2 = None
 
-    plotter = RadarPlotter(data1, data2, y_max=15)
+    plotter = RadarR2Plotter(data1, data2, y_max=15)
     plotter.show()
     plotter.save(r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 3 (Матрица обклеена лентой)\LVDS ГП [доработка2, доработка3]')
