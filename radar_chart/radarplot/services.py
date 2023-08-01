@@ -30,7 +30,7 @@ class RadarDataR2(BaseRadarData):
         for filename in self.files:
             angle = self._get_angle_from_filename(filename)
             r2 = self._get_r2_from_filename(filename)
-            data_set[np.deg2rad(angle)] = r2
+            data_set[angle] = r2
 
         # Создать объект данных pandas и отсортировать его
         data = pd.Series(data_set).sort_index()
@@ -41,7 +41,7 @@ class RadarDataR2(BaseRadarData):
         return data
 
 
-class RadarPlotterR2(BaseRadarPlotter):
+class RadarR2Plotter(BaseRadarPlotter):
     """Класс построителя круговых диаграмм по подготовленным данным о зонах R2 в RadarData"""
 
     def __init__(self, radar_data: RadarDataR2, radar_data2: RadarDataR2 = None, y_max: int = None):
@@ -50,6 +50,7 @@ class RadarPlotterR2(BaseRadarPlotter):
 
         :param radar_data: данные о R2 по углам
         :param radar_data2: второй набор данных о R2 для сравнения с первым
+        :param y_max: Предел шкалы зон R2
         """
         BaseRadarPlotter.__init__(self, radar_data, radar_data2, y_max)
 
@@ -57,6 +58,7 @@ class RadarPlotterR2(BaseRadarPlotter):
         """Из данных о зонах R2 на различных углах подготавливает круговые диаграммы"""
         fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 
+        # Настройка максимальной величины оси уровней R2
         if self.y_max is not None:
             plt.ylim((0, self.y_max))
 

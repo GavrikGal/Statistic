@@ -6,7 +6,7 @@ import os
 import math
 from typing import List
 
-from radarplot.utils.base import BaseRadarData
+from radarplot.utils.base import BaseRadarData, BaseRadarPlotter
 
 
 DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 2 (Поменяли стекло)\LVDS ГП'
@@ -59,8 +59,8 @@ class RadarDataLevels(BaseRadarData):
         frequencies = self._read_frequency_set()
 
         # Инициировать DataFrame сигналов и шумов с частотами в качестве индексов
-        signal_data_frame = pd.DataFrame(index=np.array(frequencies))
-        noise_data_frame = pd.DataFrame(index=np.array(frequencies))
+        signal_data = pd.DataFrame(index=np.array(frequencies))
+        noise_data = pd.DataFrame(index=np.array(frequencies))
 
         # Перебрать все файлы и вычитать есть ли в них данные на тех частотах, список которых нашли ранее
         for filename in self.files:
@@ -74,65 +74,80 @@ class RadarDataLevels(BaseRadarData):
 
             # заполнить ДатаФреймы сигналов и шумов
             for frequency in file_dataframe.index.values:
-                signal_data_frame.at[frequency, angle] = file_dataframe.loc[frequency][0]
-                noise_data_frame.at[frequency, angle] = file_dataframe.loc[frequency][1]
+                signal_data.at[frequency, angle] = file_dataframe.loc[frequency][0]
+                noise_data.at[frequency, angle] = file_dataframe.loc[frequency][1]
 
         # Пересмотреть все данные в ДатаФрейме сигналов(signal_data_frame), и вместо значений NaN установить
         # значение минимального шума на этой частоте из ДатаФрейма шумов(noise_data_frame)
-        for angle in signal_data_frame:
-            for frequency in signal_data_frame[angle].index.values:
-                if np.isnan(signal_data_frame[angle][frequency]):
-                    signal_data_frame[angle][frequency] = noise_data_frame.loc[frequency].max()
+        for angle in signal_data:
+            for frequency in signal_data[angle].index.values:
+                if np.isnan(signal_data[angle][frequency]):
+                    signal_data[angle][frequency] = noise_data.loc[frequency].max()
 
         # Сортируем и транспорируем полученные данные
-        signal_transpose_data_frame = signal_data_frame.sort_index().T
-        sorted_signal_transpose_data_frame = signal_transpose_data_frame.sort_index()
+        data = signal_data.sort_index().T.sort_index()
 
-        return sorted_signal_transpose_data_frame
+        # Добавить в конец ДатаФрейма данные начальной точки, чтобы график замкнулся
+        data = pd.concat([data, data[:0]])
 
-
-def get_max_y_lim(df: pd.DataFrame) -> int:
-    max_y_value = df.max().max()
-    return math.ceil(max_y_value / 10) * 10
+        return data
 
 
-def make_plot(df: pd.DataFrame) -> None:
-    """Вывод данных на график"""
+class RadarLevelsPlotter(BaseRadarPlotter):
+    """Класс построителя круговых диаграмм по подготовленным данным об Уровнях сигналов в RadarData"""
 
-    # Рассчет количества графиков по вертикали и горизонтали
-    fig_cols = 4
-    fig_rows = math.ceil(df.shape[1] / fig_cols)
+    def __init__(self, radar_data: RadarDataLevels, radar_data2: RadarDataLevels = None, y_max: int = None,
+                 col_count: int = 4):
+        """
+        Подготавливает графики с Уровнями сигналов к отображению
 
-    # Размер холста
-    plt.figure(layout='constrained', figsize=(12, 14))
+        :param radar_data: данные об уровнях сигналов по углам первого измерения
+        :param radar_data2: данные об уровнях сигналов по углам второго измерения для отображения на графиках
+        с первыми данными
+        :param y_max: Предел шкалы уровней сигналов
+        :param col_count: Количество колонок с графиками
+        """
+        self.col_count = col_count
+        BaseRadarPlotter.__init__(self, radar_data, radar_data2, y_max)
 
-    # Получение максимального значения сетки для шкалы уровней
-    max_y_lim = get_max_y_lim(df)
+    def _make_plot(self):
+        """Из данных об Уровнях сигнала на различных угла подготавливает круговые диаграммы для каждой частоты"""
 
-    for col_name, data in df.items():
-        # Новый график в соответствующей позиции
-        axes = plt.subplot(fig_rows, fig_cols, df.columns.get_loc(col_name) + 1, projection='polar')
+        # Рассчет количества графиков по вертикали и горизонтали
+        self.row_count = math.ceil(self.rdata.data.shape[1] / self.col_count)
 
-        # Получение списка углов из значений индексов ДатаФрейма
-        angles = data.index.values
+        # Размер холста
+        plt.figure(layout='constrained', figsize=(self.col_count * 2.5, self.row_count * 3))
 
-        # Настройка шкалы уровней текущего графика
-        plt.ylim((0, max_y_lim))
+        # Получение максимального значения сетки для шкалы уровней
+        if self.y_max is None:
+            self._set_y_max(self.rdata.data)
 
-        # Непосредственное создание линий на графике
-        plt.plot(np.deg2rad(angles), data, color='r', linewidth=1.8)
-        plt.plot((np.deg2rad(angles[-1]), np.deg2rad(angles[0])),
-                 (data[angles[-1]], data[angles[0]]), color='r', linewidth=1.8)
+        # Для каждой частоты данных подготовить график
+        for col_name, data in self.rdata.data.items():
 
-        # Настройка сетки графика
-        axes.tick_params(axis='both', which='major', labelsize=10)
-        axes.set_yticks(np.arange(0, max_y_lim, 10))
-        axes.set_yticks(np.arange(0, max_y_lim, 2), minor=True)
-        axes.grid(which='minor', alpha=0.2)
-        axes.grid(which='major', alpha=0.9)
+            axes = plt.subplot(self.row_count, self.col_count,
+                               self.rdata.data.columns.get_loc(col_name) + 1, projection='polar')
 
-        # Название текущего графика
-        plt.title(f"Frequency - {data.name} MHz ", loc='center')
+            # Настройка шкалы уровней текущего графика
+            plt.ylim((0, self.y_max))
+
+            # Построение линии на графике
+            plt.plot(data, color=self.line1.color, linewidth=self.line1.width)
+
+            # Настройка сетки графика
+            axes.tick_params(axis='both', which='major', labelsize=8)
+            axes.set_yticks(np.arange(0, self.y_max, 10))
+            axes.set_yticks(np.arange(0, self.y_max, 2), minor=True)
+            axes.grid(which='minor', alpha=0.2)
+            axes.grid(which='major', alpha=0.9)
+
+            # Название текущего графика
+            plt.title(f"Frequency - {data.name} MHz ", loc='center')
+
+    def _set_y_max(self, df: pd.DataFrame) -> None:
+        y_max = df.max().max()
+        self.y_max = math.ceil(y_max / 10) * 10
 
 
 if __name__ == '__main__':
@@ -141,7 +156,6 @@ if __name__ == '__main__':
 
     df_new = RadarDataLevels(DIR_NAME)
 
-    make_plot(df_new.data)
-
-    plt.savefig(DIR_NAME + '_plot.png', dpi=400)
-    plt.show()
+    plotter = RadarLevelsPlotter(df_new)
+    plotter.show()
+    plotter.save(DIR_NAME + '_plot.png')

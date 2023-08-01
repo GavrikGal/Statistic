@@ -1,5 +1,6 @@
 import abc
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import pathlib
 import re
@@ -49,7 +50,7 @@ class BaseRadarData(abc.ABC):
         :param filename: имя файла
         :return: угол, R2
         """
-        angle = float(re.findall(r'\((\d+)\)', filename)[0])
+        angle = np.deg2rad(float(re.findall(r'\((\d+)\)', filename)[0]))
         return angle
 
     @staticmethod
@@ -76,6 +77,7 @@ class BaseRadarPlotter(abc.ABC):
         """
         self.rdata: BaseRadarData = radar_data
         self.rdata2: BaseRadarData = radar_data2
+        self.y_max = y_max
 
         # Настройки стилей линий зависят от наличия второго набора данных
         Line = namedtuple('Properties', 'color style width')
@@ -84,9 +86,6 @@ class BaseRadarPlotter(abc.ABC):
         if self.rdata2 is not None:
             self.line1 = Line('b', '--', 1.1)
             self.line2 = Line('r', '-', 1.6)
-
-        # Настройка максимальной величины оси уровней R2
-        self.y_max = y_max
 
         # Построение графиков переопределенным методом
         self._make_plot()
