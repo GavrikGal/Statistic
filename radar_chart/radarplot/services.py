@@ -57,6 +57,9 @@ class RadarPlotterR2(BaseRadarPlotter):
         """Из данных о зонах R2 на различных углах подготавливает круговые диаграммы"""
         fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 
+        if self.y_max is not None:
+            plt.ylim((0, self.y_max))
+
         # Построение линнии первых данных
         ax.plot(self.rdata.data, color=self.line1.color,
                 linewidth=self.line1.width, linestyle=self.line1.style)

@@ -87,8 +87,6 @@ class BaseRadarPlotter(abc.ABC):
 
         # Настройка максимальной величины оси уровней R2
         self.y_max = y_max
-        if self.y_max is not None:
-            plt.ylim((0, self.y_max))
 
         # Построение графиков переопределенным методом
         self._make_plot()
