@@ -1,10 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import pathlib
-from collections import namedtuple
 
-from .utils.base import BaseRadarData
+from .utils.base import BaseRadarData, BaseRadarPlotter
 
 
 class RadarDataR2(BaseRadarData):
@@ -43,7 +41,7 @@ class RadarDataR2(BaseRadarData):
         return data
 
 
-class RadarPlotter(object):
+class RadarPlotterR2(BaseRadarPlotter):
     """Класс построителя круговых диаграмм по подготовленным данным о зонах R2 в RadarData"""
 
     def __init__(self, radar_data: RadarDataR2, radar_data2: RadarDataR2 = None, y_max: int = None):
@@ -53,37 +51,17 @@ class RadarPlotter(object):
         :param radar_data: данные о R2 по углам
         :param radar_data2: второй набор данных о R2 для сравнения с первым
         """
-        self.rdata: RadarDataR2 = radar_data
-        self.rdata2: RadarDataR2 = radar_data2
+        BaseRadarPlotter.__init__(self, radar_data, radar_data2, y_max)
 
-        # Настройки стилей линий зависят от наличия второго набора данных
-        Line = namedtuple('Properties', 'color style width')
-        if self.rdata2 is not None:
-            line1 = Line('b', '--', 1.1)
-            line2 = Line('r', '-', 1.6)
-        else:
-            line1 = Line('r', '-', 1.6)
-            line2 = None
-
+    def _make_plot(self):
+        """Из данных о зонах R2 на различных углах подготавливает круговые диаграммы"""
         fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 
-        # Настройка максимальной величины оси уровней R2
-        if y_max is not None:
-            plt.ylim((0, y_max))
-
         # Построение линнии первых данных
-        ax.plot(self.rdata.data, color=line1.color, linewidth=line1.width, linestyle=line1.style)
+        ax.plot(self.rdata.data, color=self.line1.color,
+                linewidth=self.line1.width, linestyle=self.line1.style)
 
         # Если есть данные для сравнения, то отобразить и их
         if self.rdata2 is not None:
-            ax.plot(self.rdata2.data, color=line2.color, linewidth=line2.width, linestyle=line2.style)
-
-    @staticmethod
-    def show():
-        plt.show()
-
-    def save(self, path: str = None):
-        if path is None:
-            plt.savefig(self.rdata.dir.joinpath('plot.png'), dpi=300)
-        else:
-            plt.savefig(pathlib.Path(path), dpi=300)
+            ax.plot(self.rdata2.data, color=self.line2.color,
+                    linewidth=self.line2.width, linestyle=self.line2.style)
