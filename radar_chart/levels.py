@@ -1,6 +1,6 @@
 import matplotlib
 
-from radarplot.services import RadarDataLevels, RadarLevelsPlotter
+from radarplot.services.levels_plot import RadarDataLevels, RadarLevelsPlotter
 
 
 DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 2 (Поменяли стекло)\LVDS ГП'

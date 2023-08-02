@@ -1,6 +1,6 @@
 import matplotlib
 
-from radarplot.services import RadarDataR2, RadarR2Plotter
+from radarplot.services.r2_plot import RadarDataR2, RadarR2Plotter
 
 
 DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 2 (Поменяли стекло)\LVDS ГП'
