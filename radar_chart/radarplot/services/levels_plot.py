@@ -1,5 +1,6 @@
 import math
 import os
+import typing
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,6 +8,18 @@ import pandas as pd
 from typing import List
 
 from .base import BaseRadarData, BaseRadarPlotter
+
+
+class SignalLevel(object):
+    """Класс уровня сигнала и уровня шума измеренного в [dB] сигнала"""
+    def __init__(self, meas_signal: float, meas_noise: float = 0):
+        self.meas_signal = meas_signal
+        self.meas_noise = meas_noise
+        self.signal = meas_signal   # В дальнейшем можно провести тут уточнение уровня сигнала, если вычесть из него шум
+        self.noise = meas_noise
+
+    def __str__(self):
+        return str((self.signal, self.noise))
 
 
 class RadarDataLevels(BaseRadarData):
@@ -31,7 +44,7 @@ class RadarDataLevels(BaseRadarData):
         # Прочитать все файлы с данными из папки self.dir и из каждого прочитать список частот
         for filename in self.files:
             frequencies = pd.read_csv(os.path.join(self.dir, filename), sep='\t', encoding='cp1251', usecols=[1],
-                                      skiprows=2).values
+                                      skiprows=1).values
             # Каджую частоту добавить в set, который обеспечивает уникальность частот
             for freq in frequencies:
                 frequency_set.add(freq[0])
@@ -50,11 +63,11 @@ class RadarDataLevels(BaseRadarData):
         """
 
         # Получить список всех частот из всех файлов
-        frequencies = self._read_frequency_set()
+        self.frequencies = self._read_frequency_set()
 
         # Инициировать DataFrame сигналов и шумов с частотами в качестве индексов
-        signal_data = pd.DataFrame(index=np.array(frequencies))
-        noise_data = pd.DataFrame(index=np.array(frequencies))
+        signal_data = pd.DataFrame(index=np.array(self.frequencies))
+        noise_data = pd.DataFrame(index=np.array(self.frequencies))
 
         # Перебрать все файлы и вычитать есть ли в них данные на тех частотах, список которых нашли ранее
         for filename in self.files:
@@ -64,27 +77,36 @@ class RadarDataLevels(BaseRadarData):
             # прочитать данные частоты, уровня сигнала и шума из файла
             # частоты установить в качестве индексов DataFrame
             file_dataframe = pd.read_csv(os.path.join(self.dir, filename), sep='\t', encoding='cp1251',
-                                         usecols=[1, 2, 3], skiprows=1, index_col=0)
+                                         usecols=[1, 2, 3], skiprows=2, index_col=0, names=['freq', 'signal', 'noise'])
 
             # заполнить ДатаФреймы сигналов и шумов
-            for frequency in file_dataframe.index.values:
-                signal_data.at[frequency, angle] = file_dataframe.loc[frequency][0]
-                noise_data.at[frequency, angle] = file_dataframe.loc[frequency][1]
+            signals = file_dataframe['signal']
+            noises = file_dataframe['noise']
+            signal_data[angle] = signals
+            noise_data[angle] = noises
 
-        # Пересмотреть все данные в ДатаФрейме сигналов(signal_data_frame), и вместо значений NaN установить
-        # значение минимального шума на этой частоте из ДатаФрейма шумов(noise_data_frame)
+        # Пересмотреть все данные в ДатаФрейме шумов(noise_data), и вместо значений NaN установить
+        # значение максимального шума на этой частоте с других направлений
+        for angle in noise_data:
+            for frequency in noise_data[angle].index.values:
+                if np.isnan(noise_data[angle][frequency]):
+                    noise_data[angle][frequency] = noise_data.loc[frequency].max()
+
+        # Пересмотреть все данные в ДатаФрейме сигналов(signal_data), и вместо значений NaN установить
+        # значение 0 или максимального шума на этой частоте с других направлений уменьшенное на 10 дБ (смотря, что ниже)
         for angle in signal_data:
             for frequency in signal_data[angle].index.values:
                 if np.isnan(signal_data[angle][frequency]):
-                    signal_data[angle][frequency] = noise_data.loc[frequency].max()
+                    signal_data[angle][frequency] = min(0, noise_data.loc[frequency].max() - 10)
 
-        # Сортируем и транспорируем полученные данные
-        data = signal_data.sort_index().T.sort_index()
+        data_s = signal_data.sort_index().T.sort_index()
+        data_n = noise_data.sort_index().T.sort_index()
 
         # Добавить в конец ДатаФрейма данные начальной точки, чтобы график замкнулся
-        data = pd.concat([data, data[:0]])
+        self.data = pd.concat([data_s, data_s[:0]])
+        self.noise = pd.concat([data_n, data_n[:0]])
 
-        return data
+        return self.data
 
 
 class RadarLevelsPlotter(BaseRadarPlotter):
@@ -117,6 +139,9 @@ class RadarLevelsPlotter(BaseRadarPlotter):
         if self.y_max is None:
             self._set_y_max(self.rdata.data)
 
+        # Максимальный уровень сигнала измеренный со всех сторон
+        max_signal = self.rdata.data.max().max()
+
         # Для каждой частоты данных подготовить график
         for col_name, data in self.rdata.data.items():
 
@@ -128,13 +153,17 @@ class RadarLevelsPlotter(BaseRadarPlotter):
 
             # Построение линии на графике
             min_color_ratio = 10
-            color_ratio = (data - min_color_ratio) / (self.rdata.data.max().max() - min_color_ratio)
-            colors = plt.cm.jet(color_ratio)
+            color_ratio_s = (data - min_color_ratio) / (max_signal - min_color_ratio)
+            color_ratio_n = (self.rdata.noise[col_name] - min_color_ratio) / (max_signal - min_color_ratio)
+            colors_s = plt.cm.jet(color_ratio_s)
+            colors_n = plt.cm.jet(color_ratio_n)
             min_width_ratio = -10
-            width_ratio = (data - min_width_ratio) / (self.rdata.data.max().max() - min_width_ratio)
+            width_ratio = (data - min_width_ratio) / (max_signal - min_width_ratio)
             width = (2 * np.pi / data.shape[0]) * width_ratio
-            axes.bar(data.index.values, data, width=width, edgecolor='gray', color=colors, linewidth=0.2, zorder=3)
-            # plt.plot(data, color=self.line1.color, linewidth=self.line1.width)
+
+            axes.bar(data.index.values, self.rdata.noise[col_name], width=0.81, edgecolor='dimgray', color=colors_n,
+                     linewidth=0.6, zorder=1)
+            axes.bar(data.index.values, data, width=width, edgecolor='gray', color=colors_s, linewidth=0.2, zorder=4)
 
             # Настройка сетки графика
             axes.tick_params(axis='both', which='major', labelsize=8)
@@ -144,7 +173,7 @@ class RadarLevelsPlotter(BaseRadarPlotter):
             axes.grid(which='major', linewidth=0.4, alpha=0.9)
 
             # Название текущего графика
-            plt.title(f"Frequency - {data.name} MHz ", loc='center')
+            plt.title(f"{data.name} МГц", loc='center')
 
     def _set_y_max(self, df: pd.DataFrame) -> None:
         y_max = df.max().max()

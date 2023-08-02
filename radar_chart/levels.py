@@ -3,7 +3,7 @@ import matplotlib
 from radarplot.services import RadarDataLevels, RadarLevelsPlotter
 
 
-DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 3 (Матрица обклеена лентой)\LVDS ВП'
+DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 2 (Поменяли стекло)\LVDS ГП'
 
 # TODO: Добавить возможность расчета из другой папки со сравнением на соответствующих графиках
 # DIR2_NAME

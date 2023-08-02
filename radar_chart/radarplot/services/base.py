@@ -20,6 +20,7 @@ class BaseRadarData(abc.ABC):
         self.dir: pathlib.Path = pathlib.Path(dir_path)
         self.files: List[str] = self._read_filenames()
         self.data: Union[pd.Series, pd.DataFrame] = self._make_data()
+        self.noise: Union[None, pd.DataFrame] = None
 
     def _read_filenames(self) -> List[str]:
         """
