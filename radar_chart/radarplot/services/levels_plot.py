@@ -153,17 +153,17 @@ class RadarLevelsPlotter(BaseRadarPlotter):
 
             # Построение линии на графике
             min_color_ratio = 10
-            color_ratio_s = (data - min_color_ratio) / (max_signal - min_color_ratio)
-            color_ratio_n = (self.rdata.noise[col_name] - min_color_ratio) / (max_signal - min_color_ratio)
+            color_ratio_s = (data - min_color_ratio) / (self.y_max - min_color_ratio)
+            color_ratio_n = (self.rdata.noise[col_name] - min_color_ratio) / (self.y_max - min_color_ratio)
             colors_s = plt.cm.jet(color_ratio_s)
             colors_n = plt.cm.jet(color_ratio_n)
             min_width_ratio = -10
-            width_ratio = (data - min_width_ratio) / (max_signal - min_width_ratio)
+            width_ratio = (data - min_width_ratio) / (self.y_max - min_width_ratio)
             width = (2 * np.pi / data.shape[0]) * width_ratio
 
             axes.bar(data.index.values, self.rdata.noise[col_name], width=0.81, edgecolor='dimgray', color=colors_n,
                      linewidth=0.6, zorder=1)
-            axes.bar(data.index.values, data, width=width, edgecolor='gray', color=colors_s, linewidth=0.2, zorder=4)
+            axes.bar(data.index.values, data, width=width, edgecolor='gray', color=colors_s, linewidth=0.4, zorder=4)
 
             # Настройка сетки графика
             axes.tick_params(axis='both', which='major', labelsize=8)
