@@ -10,16 +10,16 @@ from typing import List
 from .base import BaseRadarData, BaseRadarPlotter
 
 
-class SignalLevel(object):
-    """Класс уровня сигнала и уровня шума измеренного в [dB] сигнала"""
-    def __init__(self, meas_signal: float, meas_noise: float = 0):
-        self.meas_signal = meas_signal
-        self.meas_noise = meas_noise
-        self.signal = meas_signal   # В дальнейшем можно провести тут уточнение уровня сигнала, если вычесть из него шум
-        self.noise = meas_noise
-
-    def __str__(self):
-        return str((self.signal, self.noise))
+# class SignalLevel(object):
+#     """Класс уровня сигнала и уровня шума измеренного в [dB] сигнала"""
+#     def __init__(self, meas_signal: float, meas_noise: float = 0):
+#         self.meas_signal = meas_signal
+#         self.meas_noise = meas_noise
+#         self.signal = meas_signal   # В дальнейшем можно провести тут уточнение уровня сигнала, если вычесть из него шум
+#         self.noise = meas_noise
+#
+#     def __str__(self):
+#         return str((self.signal, self.noise))
 
 
 class RadarDataLevels(BaseRadarData):

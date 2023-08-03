@@ -1,13 +1,13 @@
 import matplotlib
 
-from radarplot.services.r2_plot import RadarDataR2, RadarR2Plotter
+from radarplot.r2_plot import RadarDataR2, RadarR2Plotter
 
 
 DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 2 (Поменяли стекло)\LVDS ГП'
 DIR2_NAME = None
 
 # Если надо отрубить второй набор данных, то комментить следующую строчку
-DIR2_NAME =r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 3 (Матрица обклеена лентой)\LVDS ГП'
+DIR2_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 3 (Матрица обклеена лентой)\LVDS ГП'
 
 if __name__ == '__main__':
     matplotlib.get_backend()
