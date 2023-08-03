@@ -103,9 +103,12 @@ class RadarDataLevels(BaseRadarData):
         data_s = signal_data.sort_index().T.sort_index()
         data_n = noise_data.sort_index().T.sort_index()
 
-        # Добавить в конец ДатаФрейма данные начальной точки, чтобы график замкнулся
-        self.data = pd.concat([data_s, data_s[:0]])
-        self.noise = pd.concat([data_n, data_n[:0]])
+        self.data = data_s
+        self.noise = data_n
+
+        # # Добавить в конец ДатаФрейма данные начальной точки, чтобы график замкнулся
+        # self.data = pd.concat([data_s, data_s[:0]])
+        # self.noise = pd.concat([data_n, data_n[:0]])
 
         return self.data
 
@@ -203,11 +206,12 @@ class RadarLevelsPlotter(BaseRadarPlotter):
                 if self.rdata2 is not None:
                     signal_max = max(self.rdata.data.max().max(), self.rdata2.data.max().max())
                     width_ratio = (data - min_width_ratio) / (signal_max - min_width_ratio)
+                    width_ratio *= 0.9
                 width = (2 * np.pi / data.shape[0]) * width_ratio
 
                 # Построение графика шума
                 axes.bar(data.index.values, self.rdata.noise[frequency], width=0.81, edgecolor='dimgray', color=colors_n,
-                         linewidth=0.6, zorder=1)
+                         linewidth=0.6, zorder=1, alpha=0.8)
                 # Если есть только одна выборка, то бары сигнала во всю ширину сектора, иначе вполовину, сместить
                 # и покрасить ребра в различимые цвета todo
                 offset1 = 0
@@ -215,8 +219,8 @@ class RadarLevelsPlotter(BaseRadarPlotter):
                 Line = namedtuple('Properties', 'color style width')
                 self.line1 = Line('gray', '-', 0.4)
                 if self.rdata2 is not None:
-                    width_offset_ratio = -0.5
-                    offset1 = (width * width_offset_ratio) / 2
+                    width_offset_ratio = 0.8
+                    offset1 = -(((width * width_offset_ratio) / 2) - ((width * width_offset_ratio) - (width / 2)))
                     Line = namedtuple('Properties', 'color style width')    # todo: убрать перечисление Line из сделать класс
                     self.line1 = Line('mediumblue', '--', 1)
 
@@ -224,7 +228,7 @@ class RadarLevelsPlotter(BaseRadarPlotter):
                 axes.bar(data.index.values+offset1, data,
                          width=width*width_offset_ratio,
                          edgecolor=self.line1.color, color=colors_s,
-                         linewidth=self.line1.width, zorder=4)
+                         linewidth=self.line1.width, zorder=5, alpha=0.8)
 
             # Если есть вторая выборка, построить дня нее график todo
             if self.rdata2 is not None:
@@ -240,6 +244,7 @@ class RadarLevelsPlotter(BaseRadarPlotter):
                     # todo: навести порядок на рефайкторинге
                     signal_max = max(self.rdata.data.max().max(), self.rdata2.data.max().max())
                     width_ratio = (data - min_width_ratio) / (signal_max - min_width_ratio)
+                    width_ratio *= 0.9
                     width = (2 * np.pi / data.shape[0]) * width_ratio
 
                     # Построение графика шума
@@ -252,8 +257,8 @@ class RadarLevelsPlotter(BaseRadarPlotter):
                     offset1 = 0
                     width_offset_ratio = 1
                     if self.rdata2 is not None:
-                        width_offset_ratio = 0.5
-                        offset1 = (width * width_offset_ratio) / 2
+                        width_offset_ratio = 0.8
+                        offset1 = (((width * width_offset_ratio) / 2) - ((width * width_offset_ratio) - (width / 2)))
                         Line = namedtuple('Properties', 'color style width')    # todo: убрать перечисление Line из сделать класс
                         self.line1 = Line('firebrick', '--', 1)
 
@@ -261,7 +266,7 @@ class RadarLevelsPlotter(BaseRadarPlotter):
                     axes.bar(data.index.values+offset1, data,
                              width=width*width_offset_ratio,
                              edgecolor=self.line1.color, color=colors_s,
-                             linewidth=self.line1.width, zorder=4)
+                             linewidth=self.line1.width, zorder=6, alpha=0.8)
 
 
 
