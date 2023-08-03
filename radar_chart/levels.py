@@ -20,6 +20,6 @@ if __name__ == '__main__':
     else:
         data2 = None
 
-    plotter = RadarLevelsPlotter(data1, data2, y_max=50)
+    plotter = RadarLevelsPlotter(data1, data2)
     plotter.show()
     plotter.save(DIR_NAME + '_plot.png')
