@@ -10,7 +10,7 @@ class TestR2(unittest.TestCase):
     def test_smoke_radar_data(self):
         """Тестируем, что данные вообще обрабатываются и объект класса создается"""
 
-        path = pathlib.Path(r'data/DataSet 1/DVI ВП').resolve()
+        path = pathlib.Path(r'radar_chart/tests/data/DataSet 1/DVI ВП').resolve()
         radar_data = RadarDataR2(str(path))
         self.assertIsNotNone(radar_data)
 
@@ -21,7 +21,7 @@ class TestR2(unittest.TestCase):
         matplotlib.get_backend()
         matplotlib.use('TkAgg')
 
-        path = pathlib.Path(r'data/DataSet 1/DVI ВП').resolve()
+        path = pathlib.Path(r'radar_chart/tests/data/DataSet 1/DVI ВП').resolve()
         radar_data = RadarDataR2(str(path))
         plotter = RadarR2Plotter(radar_data)
         self.assertIsNotNone(plotter)
