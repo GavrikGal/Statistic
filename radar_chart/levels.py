@@ -3,11 +3,11 @@ import matplotlib
 from radarplot.levels_plot import RadarDataLevels, RadarLevelsPlotter
 
 
-DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 2 (Поменяли стекло)\DVI ВП'
+DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 2 (Поменяли стекло)\LVDS ВП'
 DIR2_NAME = None
 
 # Если надо отрубить второй набор данных, то комментить следующую строчку
-DIR2_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 3 (Матрица обклеена лентой)\DVI ВП'
+DIR2_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 3 (Матрица обклеена лентой)\LVDS ВП'
 
 
 if __name__ == '__main__':
