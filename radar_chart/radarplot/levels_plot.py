@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from typing import List
 
-from .base import BaseRadarData, BaseRadarPlotter
+from .base import BaseRadarData, BaseRadarPlotter, Line
 
 
 # class SignalLevel(object):
@@ -128,8 +128,8 @@ class RadarLevelsPlotter(BaseRadarPlotter):
         :param col_count: Количество колонок с графиками
         """
         self.col_count = col_count
-        BaseRadarPlotter.__init__(self, radar_data, radar_data2, y_max)
 
+        BaseRadarPlotter.__init__(self, radar_data, radar_data2, y_max)
 
     # todo: объединить методы создания списка частот тут и в RadarDataLevels
     def _set_frequencies_list(self, data1: pd.DataFrame, data2: pd.DataFrame = None) -> pd.Series:
@@ -179,8 +179,7 @@ class RadarLevelsPlotter(BaseRadarPlotter):
             else:
                 self._set_y_max(self.rdata.data, self.rdata2.data)
 
-        # Для каждой частоты данных (todo: из спискачастот) подготовить график
-        # for col_name, data in self.rdata.data.items():
+        # Для каждой частоты данных
         for frequency in self.frequency_list:
             axes = plt.subplot(self.row_count, self.col_count,
                                pd.Index(self.frequency_list).get_loc(frequency) + 1, projection='polar')
@@ -213,16 +212,21 @@ class RadarLevelsPlotter(BaseRadarPlotter):
                 axes.bar(data.index.values, self.rdata.noise[frequency], width=0.81, edgecolor='dimgray', color=colors_n,
                          linewidth=0.6, zorder=1, alpha=0.8)
                 # Если есть только одна выборка, то бары сигнала во всю ширину сектора, иначе вполовину, сместить
-                # и покрасить ребра в различимые цвета todo
+                # и покрасить ребра в различимые цвета
                 offset1 = 0
                 width_offset_ratio = 1
-                Line = namedtuple('Properties', 'color style width')
-                self.line1 = Line('gray', '-', 0.4)
+
+                # todo: убрать настройки линий из этого метода при рефакторинге
+                self.line1 = Line('mediumblue', '-', 1)
+                self.line2 = Line('firebrick', '-', 1)
+
+                if self.rdata2 is None:
+                    self.line1.color = 'gray'
+                    self.line1.width = 0.4
+
                 if self.rdata2 is not None:
                     width_offset_ratio = 0.8
                     offset1 = -(((width * width_offset_ratio) / 2) - ((width * width_offset_ratio) - (width / 2)))
-                    Line = namedtuple('Properties', 'color style width')    # todo: убрать перечисление Line из сделать класс
-                    self.line1 = Line('mediumblue', '--', 1)
 
                 # Построить график сигнала
                 axes.bar(data.index.values+offset1, data,
@@ -230,7 +234,7 @@ class RadarLevelsPlotter(BaseRadarPlotter):
                          edgecolor=self.line1.color, color=colors_s,
                          linewidth=self.line1.width, zorder=5, alpha=0.8)
 
-            # Если есть вторая выборка, построить дня нее график todo
+            # Если есть вторая выборка, построить дня нее график
             if self.rdata2 is not None:
                 if frequency in self.rdata2.data.columns.values:
                     data = self.rdata2.data[frequency]
@@ -259,16 +263,12 @@ class RadarLevelsPlotter(BaseRadarPlotter):
                     if self.rdata2 is not None:
                         width_offset_ratio = 0.8
                         offset1 = (((width * width_offset_ratio) / 2) - ((width * width_offset_ratio) - (width / 2)))
-                        Line = namedtuple('Properties', 'color style width')    # todo: убрать перечисление Line из сделать класс
-                        self.line1 = Line('firebrick', '--', 1)
 
                     # Построить график сигнала
                     axes.bar(data.index.values+offset1, data,
                              width=width*width_offset_ratio,
-                             edgecolor=self.line1.color, color=colors_s,
-                             linewidth=self.line1.width, zorder=6, alpha=0.8)
-
-
+                             edgecolor=self.line2.color, color=colors_s,
+                             linewidth=self.line2.width, zorder=6, alpha=0.8)
 
             # Настройка сетки графика
             axes.tick_params(axis='both', which='major', labelsize=8)

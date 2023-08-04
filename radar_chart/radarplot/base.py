@@ -1,4 +1,6 @@
 import abc
+from dataclasses import dataclass
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -67,6 +69,13 @@ class BaseRadarData(abc.ABC):
         return r2
 
 
+@dataclass
+class Line:
+    color: str = 'gray'
+    style: str = '-'
+    width: float = 1.
+
+
 class BaseRadarPlotter(abc.ABC):
     """Класс построителя круговых диаграмм по подготовленным данным о зонах R2 в RadarData"""
 
@@ -82,9 +91,9 @@ class BaseRadarPlotter(abc.ABC):
         self.y_max = y_max
 
         # Настройки стилей линий зависят от наличия второго набора данных
-        Line = namedtuple('Properties', 'color style width')
-        self.line1 = Line('r', '-', 1.6)
-        self.line2 = None
+        # Line = namedtuple('Properties', 'color style width')
+        self.line1: Line = Line('r', '-', 1.6)
+        self.line2: Union[None, Line] = None
         if self.rdata2 is not None:
             self.line1 = Line('b', '--', 1.1)
             self.line2 = Line('r', '-', 1.6)
