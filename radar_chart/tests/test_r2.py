@@ -19,7 +19,7 @@ class TestR2(unittest.TestCase):
 
         import matplotlib
         matplotlib.get_backend()
-        matplotlib.use('TkAgg')
+        # matplotlib.use('TkAgg')
 
         path = pathlib.Path(r'radar_chart/tests/data/DataSet 1/DVI ВП').resolve()
         radar_data = RadarDataR2(str(path))
