@@ -12,7 +12,7 @@ DIR2_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1
 
 if __name__ == '__main__':
     matplotlib.get_backend()
-    matplotlib.use('TkAgg')
+    # matplotlib.use('TkAgg')
 
     data1 = RadarDataLevels(DIR_NAME)
     if DIR2_NAME is None:
