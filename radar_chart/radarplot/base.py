@@ -77,7 +77,8 @@ class Line:
 class BaseRadarPlotter(abc.ABC):
     """Класс построителя круговых диаграмм по подготовленным данным о зонах R2 в RadarData"""
 
-    def __init__(self, radar_data: BaseRadarData, radar_data2: BaseRadarData = None, y_max: int = None):
+    def __init__(self, radar_data: BaseRadarData, radar_data2: BaseRadarData = None,
+                 radar_data_list: List[BaseRadarData] = None, y_max: int = None):
         """
         Подготавливает графики с зонами R2 или Уровнями сигнала к отображению
 
@@ -85,7 +86,12 @@ class BaseRadarPlotter(abc.ABC):
         :param radar_data2: второй набор данных о R2 для сравнения с первым
         """
         self.rdata: BaseRadarData = radar_data
-        self.rdata2: BaseRadarData = radar_data2
+        self.rdata2: BaseRadarData = radar_data2        # todo: избавиться от rdata2, заменив на список данных
+        self.rdata_list: List[BaseRadarData] = []
+        if radar_data_list is not None and len(radar_data_list) > 0:
+            self.rdata_list = radar_data_list
+        else:
+            self.rdata_list.append(self.rdata)
         self.y_max = y_max
 
         # Настройки стилей линий зависят от наличия второго набора данных

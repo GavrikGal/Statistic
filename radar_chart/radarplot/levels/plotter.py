@@ -13,7 +13,8 @@ from .data import RadarDataLevels
 class RadarLevelsPlotter(BaseRadarPlotter):
     """Класс построителя круговых диаграмм по подготовленным данным об Уровнях сигналов в RadarData"""
 
-    def __init__(self, radar_data: RadarDataLevels, radar_data2: RadarDataLevels = None, y_max: int = None,
+    def __init__(self, radar_data: RadarDataLevels, radar_data2: RadarDataLevels = None,
+                 radar_data_list: List[RadarDataLevels] = None, y_max: int = None,
                  col_count: int = 4):
         """
         Подготавливает графики с Уровнями сигналов к отображению
@@ -26,17 +27,19 @@ class RadarLevelsPlotter(BaseRadarPlotter):
         """
         self.col_count = col_count
 
-        BaseRadarPlotter.__init__(self, radar_data, radar_data2, y_max)
+        BaseRadarPlotter.__init__(self, radar_data, radar_data2, radar_data_list, y_max)
 
     def make_plot(self):
         """Из данных об Уровнях сигнала на различных угла подготавливает круговые диаграммы для каждой частоты"""
 
         # Список частот сохранить в self.frequencies
         # Получить общий список частот двух выборок, если data2 не равна None
-        if self.rdata2 is None:
-            self.frequency_list = sorted(make_unique_frequency_list([self.rdata.data]))
-        else:
-            self.frequency_list = sorted(make_unique_frequency_list([self.rdata.data, self.rdata2.data]))
+        # if self.rdata2 is None:
+        #     self.frequency_list = sorted(make_unique_frequency_list([self.rdata.data]))
+        # else:
+        #     self.frequency_list = sorted(make_unique_frequency_list([self.rdata.data, self.rdata2.data]))
+
+        self.frequency_list = sorted(make_unique_frequency_list([rdata.data for rdata in self.rdata_list]))
 
         # Список углов, на которых проводились измерения надо сохранить в self.angels,
         self.angels = self.rdata.data.index.values
@@ -48,7 +51,7 @@ class RadarLevelsPlotter(BaseRadarPlotter):
         # Размер холста
         plt.figure(layout='constrained', figsize=(self.col_count * 2.5, self.row_count * 3))
 
-        # Получение максимального значения сетки для шкалы уровней
+        # Получение максимального значения сетки для шкалы уровней todo: переделать на rdata_list
         if self.y_max is None:
             if self.rdata2 is None:
                 self._set_y_max(self.rdata.data)

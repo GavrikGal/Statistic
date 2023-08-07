@@ -15,13 +15,16 @@ if __name__ == '__main__':
     matplotlib.get_backend()
     # matplotlib.use('TkAgg')
 
+    data_list = None
+
     data1 = RadarDataLevels(DIR_NAME)
     if DIR2_NAME is None:
         data2 = None
     else:
         data2 = RadarDataLevels(DIR2_NAME)
+        data_list = [data1, data2]
 
-    plotter = RadarLevelsPlotter(data1, data2)
+    plotter = RadarLevelsPlotter(data1, data2, radar_data_list=data_list)
     plotter.show()
     if DIR2_NAME is None:
         plotter.save(DIR_NAME + '_plot.png')
