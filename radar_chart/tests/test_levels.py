@@ -2,7 +2,7 @@ import unittest
 import pathlib
 
 
-from radar_chart.radarplot.levels_plot import RadarDataLevels, RadarLevelsPlotter
+from radar_chart.radarplot.levels.plotter import RadarDataLevels, RadarLevelsPlotter
 
 
 class TestLevels(unittest.TestCase):

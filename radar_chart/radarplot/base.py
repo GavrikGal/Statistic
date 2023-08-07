@@ -7,7 +7,6 @@ import pandas as pd
 import pathlib
 import re
 from typing import List, Union
-from collections import namedtuple
 
 
 class BaseRadarData(abc.ABC):
@@ -20,12 +19,11 @@ class BaseRadarData(abc.ABC):
         :param dir_path: путь к папке со списком файлов данных
         """
         self.dir: pathlib.Path = pathlib.Path(dir_path)
-        self.files: List[str] = self._read_filenames()
+        self.files: List[str] = self.read_filenames()
         self.noise: Union[None, pd.DataFrame] = None
-        self.data: Union[pd.Series, pd.DataFrame] = self._make_data()
+        self.data: Union[pd.Series, pd.DataFrame] = self.make_data()
 
-
-    def _read_filenames(self) -> List[str]:
+    def read_filenames(self) -> List[str]:
         """
         Прочитать список файлов из заданной папки
 
@@ -35,7 +33,7 @@ class BaseRadarData(abc.ABC):
         return file_list
 
     @abc.abstractmethod
-    def _make_data(self) -> Union[pd.Series, pd.DataFrame]:
+    def make_data(self) -> Union[pd.Series, pd.DataFrame]:
         """
         Должен читать имя каждого файла из списка self.files, парсить в нем угол, на котором проводились
         измерения, и, в зависимости от необходимости, парсит либо результат рассчитанной зоны R2,
@@ -47,7 +45,7 @@ class BaseRadarData(abc.ABC):
         """
 
     @staticmethod
-    def _get_angle_from_filename(filename: str) -> float:
+    def get_angle_from_filename(filename: str) -> float:
         """
         Парсит имя файла на угол, на котором проводились измерения, и результат рассчитанной зоны R2
 
@@ -58,7 +56,7 @@ class BaseRadarData(abc.ABC):
         return angle
 
     @staticmethod
-    def _get_r2_from_filename(filename: str) -> float:
+    def get_r2_from_filename(filename: str) -> float:
         """
         Парсит имя файла на угол, на котором проводились измерения, и результат рассчитанной зоны R2
 
@@ -99,10 +97,10 @@ class BaseRadarPlotter(abc.ABC):
             self.line2 = Line('r', '-', 1.6)
 
         # Построение графиков переопределенным методом
-        self._make_plot()
+        self.make_plot()
 
     @abc.abstractmethod
-    def _make_plot(self):
+    def make_plot(self):
         """Из данных о зонах R2 или Уровней сигналов в self.rdata должен подготовить графики для отображения"""
 
     @staticmethod

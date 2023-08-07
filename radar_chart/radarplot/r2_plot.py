@@ -20,7 +20,7 @@ class RadarDataR2(BaseRadarData):
         """
         BaseRadarData.__init__(self, dir_path)
 
-    def _make_data(self) -> pd.Series:
+    def make_data(self) -> pd.Series:
         """
         Читает имя каждого файла из списка self.files парсит в нем угол, на котором проводились измерения, и
         результат рассчитанной зоны R2. Из этих данных формирует ДатаСерию для всех положений (углов) измерений
@@ -32,8 +32,8 @@ class RadarDataR2(BaseRadarData):
         # Перебрать названия всех файлов папки и выбрать из них угол,
         # на котором проводились измерения, и радиус зоны R2
         for filename in self.files:
-            angle = self._get_angle_from_filename(filename)
-            r2 = self._get_r2_from_filename(filename)
+            angle = self.get_angle_from_filename(filename)
+            r2 = self.get_r2_from_filename(filename)
             data_set[angle] = r2
 
         # Создать объект данных pandas и отсортировать его
@@ -58,7 +58,7 @@ class RadarR2Plotter(BaseRadarPlotter):
         """
         BaseRadarPlotter.__init__(self, radar_data, radar_data2, y_max)
 
-    def _make_plot(self):
+    def make_plot(self):
         """Из данных о зонах R2 на различных углах подготавливает круговые диаграммы"""
         fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 

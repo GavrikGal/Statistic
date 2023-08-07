@@ -1,116 +1,13 @@
 import math
-import os
-import typing
-from collections import namedtuple
-
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+
 from typing import List
 
-from .base import BaseRadarData, BaseRadarPlotter, Line
-
-
-# class SignalLevel(object):
-#     """Класс уровня сигнала и уровня шума измеренного в [dB] сигнала"""
-#     def __init__(self, meas_signal: float, meas_noise: float = 0):
-#         self.meas_signal = meas_signal
-#         self.meas_noise = meas_noise
-#         self.signal = meas_signal   # В дальнейшем можно провести тут уточнение уровня сигнала, если вычесть из него шум
-#         self.noise = meas_noise
-#
-#     def __str__(self):
-#         return str((self.signal, self.noise))
-
-
-class RadarDataLevels(BaseRadarData):
-    """Класс данных для круговых диаграмм уровней излучений, измеренных в различных
-    направлениях от изделия"""
-
-    def __init__(self, dir_path: str):
-        """
-        Подготавливае данные об уровнях излучений (на всех углах измерений) из папки dir_path
-        для отображения их на круговых диаграммах
-        :param dir_path: путь к папке со списком файлов данных
-        """
-        BaseRadarData.__init__(self, dir_path)
-
-    def _read_frequency_set(self) -> List[float]:
-        """
-        Получить список всех частот, на которых обнаружены сигналы, из всех файлов с данными
-        :return: список частот
-        """
-
-        frequency_set = set()
-        # Прочитать все файлы с данными из папки self.dir и из каждого прочитать список частот
-        for filename in self.files:
-            frequencies = pd.read_csv(os.path.join(self.dir, filename), sep='\t', encoding='cp1251', usecols=[1],
-                                      skiprows=1).values
-            # Каджую частоту добавить в set, который обеспечивает уникальность частот
-            for freq in frequencies:
-                frequency_set.add(freq[0])
-
-        # Сортируем и отдаем set преобразовав его в list
-        frequency_list = list(sorted(frequency_set))
-        return frequency_list
-
-    def _make_data(self) -> pd.DataFrame:
-        """
-        Читает имя каждого файла из списка self.files парсит в нем угол, на котором проводились измерения,
-        и измеренный уровень сигнала. Из этих данных формирует ДатаФрейм для всех положений (углов) измерений
-        и для всех частот, на которых обраружены сигналы
-
-        :return: ДатаСерия с углами, в качестве индексов, и уровнями сигнала, в качестве значений
-        """
-
-        # Получить список всех частот из всех файлов
-        self.frequencies = self._read_frequency_set()
-
-        # Инициировать DataFrame сигналов и шумов с частотами в качестве индексов
-        signal_data = pd.DataFrame(index=np.array(self.frequencies))
-        noise_data = pd.DataFrame(index=np.array(self.frequencies))
-
-        # Перебрать все файлы и вычитать есть ли в них данные на тех частотах, список которых нашли ранее
-        for filename in self.files:
-            # получить величину угла из названия файла
-            angle = self._get_angle_from_filename(filename)
-
-            # прочитать данные частоты, уровня сигнала и шума из файла
-            # частоты установить в качестве индексов DataFrame
-            file_dataframe = pd.read_csv(os.path.join(self.dir, filename), sep='\t', encoding='cp1251',
-                                         usecols=[1, 2, 3], skiprows=2, index_col=0, names=['freq', 'signal', 'noise'])
-
-            # заполнить ДатаФреймы сигналов и шумов
-            signals = file_dataframe['signal']
-            noises = file_dataframe['noise']
-            signal_data[angle] = signals
-            noise_data[angle] = noises
-
-        # Пересмотреть все данные в ДатаФрейме шумов(noise_data), и вместо значений NaN установить
-        # значение максимального шума на этой частоте с других направлений
-        for angle in noise_data:
-            for frequency in noise_data[angle].index.values:
-                if np.isnan(noise_data[angle][frequency]):
-                    noise_data[angle][frequency] = noise_data.loc[frequency].max()
-
-        # Пересмотреть все данные в ДатаФрейме сигналов(signal_data), и вместо значений NaN установить
-        # значение 0 или максимального шума на этой частоте с других направлений уменьшенное на 10 дБ (смотря, что ниже)
-        for angle in signal_data:
-            for frequency in signal_data[angle].index.values:
-                if np.isnan(signal_data[angle][frequency]):
-                    signal_data[angle][frequency] = min(0, noise_data.loc[frequency].max() - 10)
-
-        data_s = signal_data.sort_index().T.sort_index()
-        data_n = noise_data.sort_index().T.sort_index()
-
-        self.data = data_s
-        self.noise = data_n
-
-        # # Добавить в конец ДатаФрейма данные начальной точки, чтобы график замкнулся
-        # self.data = pd.concat([data_s, data_s[:0]])
-        # self.noise = pd.concat([data_n, data_n[:0]])
-
-        return self.data
+from ..base import BaseRadarPlotter, Line
+from ..utils import make_unique_frequency_list
+from .data import RadarDataLevels
 
 
 class RadarLevelsPlotter(BaseRadarPlotter):
@@ -131,36 +28,15 @@ class RadarLevelsPlotter(BaseRadarPlotter):
 
         BaseRadarPlotter.__init__(self, radar_data, radar_data2, y_max)
 
-    # todo: объединить методы создания списка частот тут и в RadarDataLevels
-    def _set_frequencies_list(self, data1: pd.DataFrame, data2: pd.DataFrame = None) -> pd.Series:
-        """
-        Формирует общий список частот из всех выборок
-        :param data1: Первая выборка
-        :param data2: Вторая выборка
-        :return: Список частот
-        """
-        frequency_set = set()
-
-        # Каджую частоту из выборок добавить в set, который обеспечивает уникальность частот
-        for freq in data1.columns.values:
-            frequency_set.add(freq)
-        if data2 is not None:
-            for freq in data2.columns.values:
-                frequency_set.add(freq)
-
-        # Сортируем и устанавливаем set, преобразованный в list, в список частот
-        frequency_list = pd.Series(sorted(frequency_set))
-        return frequency_list
-
-    def _make_plot(self):
+    def make_plot(self):
         """Из данных об Уровнях сигнала на различных угла подготавливает круговые диаграммы для каждой частоты"""
 
         # Список частот сохранить в self.frequencies
         # Получить общий список частот двух выборок, если data2 не равна None
         if self.rdata2 is None:
-            self.frequency_list = self._set_frequencies_list(self.rdata.data)
+            self.frequency_list = sorted(make_unique_frequency_list([self.rdata.data]))
         else:
-            self.frequency_list = self._set_frequencies_list(self.rdata.data, self.rdata2.data)
+            self.frequency_list = sorted(make_unique_frequency_list([self.rdata.data, self.rdata2.data]))
 
         # Список углов, на которых проводились измерения надо сохранить в self.angels,
         self.angels = self.rdata.data.index.values
