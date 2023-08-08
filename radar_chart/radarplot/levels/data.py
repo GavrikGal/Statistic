@@ -30,12 +30,13 @@ class RadarDataLevels(BaseRadarData):
         # Прочитать все файлы с данными из папки self.dir и из каждого прочитать список частот
         for filename in self.files:
             frequencies = pd.read_csv(os.path.join(self.dir, filename), sep='\t', encoding='cp1251', usecols=[1],
-                                      skiprows=1)
+                                      skiprows=1, index_col=0)
+
             # Каждый набор частот добавить в список
             frequency_list.append(frequencies)
-
         # Оставляем только уникальные частоты в списке
         frequency_list = make_unique_frequency_list(frequency_list)
+
         return sorted(frequency_list)
 
     def make_data(self) -> pd.DataFrame:

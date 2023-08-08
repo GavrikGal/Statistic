@@ -19,6 +19,6 @@ if __name__ == '__main__':
     else:
         data2 = None
 
-    plotter = RadarR2Plotter(data1, data2, y_max=15)
+    plotter = RadarR2Plotter(data1, data2, max_y_tick=15)
     plotter.show()
     plotter.save(r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 3 (Матрица обклеена лентой)\LVDS ГП [доработка2, доработка3]')

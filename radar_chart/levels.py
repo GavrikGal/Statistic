@@ -18,6 +18,8 @@ if __name__ == '__main__':
     data_list = None
 
     data1 = RadarDataLevels(DIR_NAME)
+    # print(40*'----')
+    # print(data1.data)
     if DIR2_NAME is None:
         data2 = None
     else:
