@@ -112,6 +112,12 @@ class BaseRadarPlotter(abc.ABC):
             self.line1 = Line('b', '--', 1.1)
             self.line2 = Line('r', '-', 1.6)
 
+        # Список настроек стилей линий todo: стек для хранения линий, больше дефолтных настроек линий
+        self.lines: List[Line] = [
+            Line('b', '--', 1.1),
+            Line('r', '-', 1.6)
+        ]
+
         # Построение графиков переопределенным методом
         self.make_plot()
 

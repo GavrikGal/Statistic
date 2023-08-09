@@ -57,13 +57,9 @@ class RadarLevelsPlotter(BaseRadarPlotter):
             min_color_ratio = 10
             min_width_ratio = -10
 
-
-            for rdata in self.rdata_list:
-                # print(df)
+            for i_rdata, rdata in enumerate(self.rdata_list):
                 if frequency in rdata.data.columns.values:
-
                     data = rdata.data[frequency]
-                    print(data)
 
                     # Настройка цвет и ширины бара
                     color_ratio_s = (data - min_color_ratio) / (self.max_y_tick - min_color_ratio)
@@ -81,29 +77,33 @@ class RadarLevelsPlotter(BaseRadarPlotter):
 
                     # Построение графика шума
                     axes.bar(data.index.values, rdata.noise[frequency], width=0.81, edgecolor='dimgray', color=colors_n,
-                             linewidth=0.6, zorder=1, alpha=0.8)
+                             linewidth=0.6, zorder=1, alpha=0.4)
                     # Если есть только одна выборка, то бары сигнала во всю ширину сектора, иначе вполовину, сместить
                     # и покрасить ребра в различимые цвета
-                    offset1 = 0
+                    offset = 0
                     width_offset_ratio = 1
 
                     # todo: убрать настройки линий из этого метода при рефакторинге
-                    self.line1 = Line('mediumblue', '-', 1)
-                    self.line2 = Line('firebrick', '-', 1)
+                    self.lines = [
+                        Line('mediumblue', '-', 1),
+                        Line('firebrick', '-', 1)
+                    ]
 
-                    if self.rdata2 is None:
+                    # todo: убрать
+                    if len(self.rdata_list) == 1:
                         self.line1.color = 'gray'
                         self.line1.width = 0.4
 
-                    if self.rdata2 is not None:
+                    # todo: переделать расчет ширины лепестков и их смещение от количества выборок (сделать функцию)
+                    if len(self.rdata_list) > 1:
                         width_offset_ratio = 0.8
-                        offset1 = -(((width * width_offset_ratio) / 2) - ((width * width_offset_ratio) - (width / 2)))
+                        offset = 2 * (((width * width_offset_ratio) / 2) - ((width * width_offset_ratio) - (width / 2)))
 
                     # Построить график сигнала
-                    axes.bar(data.index.values+offset1, data,
+                    axes.bar(data.index.values-offset/2+(i_rdata*offset), data,
                              width=width*width_offset_ratio,
-                             edgecolor=self.line1.color, color=colors_s,
-                             linewidth=self.line1.width, zorder=5, alpha=0.8)
+                             edgecolor=self.lines[i_rdata].color, color=colors_s,
+                             linewidth=self.lines[i_rdata].width, zorder=5, alpha=0.8)
 
             # if frequency in self.frequency_list:
             #     data = self.rdata.data[frequency]
