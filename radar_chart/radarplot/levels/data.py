@@ -8,6 +8,9 @@ from ..base import BaseRadarData
 from ..utils import make_unique_frequency_list
 
 
+MIN_VALUE = 0
+
+
 class RadarDataLevels(BaseRadarData):
     """Класс данных для круговых диаграмм уровней излучений, измеренных в различных
     направлениях от изделия"""
@@ -73,22 +76,23 @@ class RadarDataLevels(BaseRadarData):
 
         # Пересмотреть все данные в ДатаФрейме шумов(noise_data), и вместо значений NaN установить
         # значение максимального шума на этой частоте с других направлений
-        # Значение шума не должно быть ниже 0 дБ
+        # Значение шума не должно быть ниже MIN_VALUE
         for angle in noise_data:
             for frequency in noise_data[angle].index.values:
                 if np.isnan(noise_data[angle][frequency]):
                     noise_data[angle][frequency] = noise_data.loc[frequency].max()
-                if noise_data[angle][frequency] < 0:
-                    noise_data[angle][frequency] = 0
+                if noise_data[angle][frequency] < MIN_VALUE:
+                    noise_data[angle][frequency] = MIN_VALUE
 
-        # Пересмотреть все данные в ДатаФрейме сигналов(signal_data), и вместо значений NaN установить значение 0
-        # Значение сигнала не должно быть ниже 0 дБ
+        # Пересмотреть все данные в ДатаФрейме сигналов(signal_data), и
+        # вместо значений NaN установить значение MIN_VALUE
+        # Значение сигнала не должно быть ниже MIN_VALUE
         for angle in signal_data:
             for frequency in signal_data[angle].index.values:
                 if np.isnan(signal_data[angle][frequency]):
-                    signal_data[angle][frequency] = min(0, noise_data.loc[frequency].max() - 10)
-                if signal_data[angle][frequency] < 0:
-                    signal_data[angle][frequency] = 0
+                    signal_data[angle][frequency] = min(MIN_VALUE, noise_data.loc[frequency].max() - 10)
+                if signal_data[angle][frequency] < MIN_VALUE:
+                    signal_data[angle][frequency] = MIN_VALUE
 
         data_s = signal_data.sort_index().T.sort_index()
         data_n = noise_data.sort_index().T.sort_index()
