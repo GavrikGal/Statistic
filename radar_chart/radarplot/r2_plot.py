@@ -75,3 +75,9 @@ class RadarR2Plotter(BaseRadarPlotter):
         if self.rdata2 is not None:
             ax.plot(self.rdata2.data, color=self.line2.color,
                     linewidth=self.line2.width, linestyle=self.line2.style)
+
+        # Настройка сетки графика
+        ax.set_yticks(np.arange(0, self.max_y_tick, 5))
+        ax.set_yticks(np.arange(0, self.max_y_tick, 1), minor=True)
+        ax.grid(which='minor', color='lightgray', linewidth=0.3, alpha=0.3)
+        ax.grid(which='major', linewidth=0.4, alpha=0.9)
