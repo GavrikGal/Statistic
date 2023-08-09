@@ -48,7 +48,8 @@ class RadarDataR2(BaseRadarData):
 class RadarR2Plotter(BaseRadarPlotter):
     """Класс построителя круговых диаграмм по подготовленным данным о зонах R2 в RadarData"""
 
-    def __init__(self, radar_data: RadarDataR2, radar_data2: RadarDataR2 = None, max_y_tick: int = None):
+    def __init__(self, radar_data: RadarDataR2, radar_data2: RadarDataR2 = None,
+                 radar_data_list: List[RadarDataR2] = None, max_y_tick: int = None):
         """
         Подготавливает графики с зонами R2 к отображению
 
@@ -56,7 +57,7 @@ class RadarR2Plotter(BaseRadarPlotter):
         :param radar_data2: второй набор данных о R2 для сравнения с первым
         :param max_y_tick: Предел шкалы зон R2
         """
-        BaseRadarPlotter.__init__(self, radar_data, radar_data2, max_y_tick)
+        BaseRadarPlotter.__init__(self, radar_data, radar_data2, radar_data_list, max_y_tick)
 
     def make_plot(self):
         """Из данных о зонах R2 на различных углах подготавливает круговые диаграммы"""

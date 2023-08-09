@@ -57,6 +57,9 @@ class RadarLevelsPlotter(BaseRadarPlotter):
             min_color_ratio = 10
             min_width_ratio = -10
 
+            # Название текущего графика
+            plt.title(f"{frequency} МГц", loc='center')
+
             for i_rdata, rdata in enumerate(self.rdata_list):
                 if frequency in rdata.data.columns.values:
                     data = rdata.data[frequency]
@@ -191,9 +194,6 @@ class RadarLevelsPlotter(BaseRadarPlotter):
             axes.set_yticks(np.arange(0, self.max_y_tick, 2), minor=True)
             axes.grid(which='minor', color='lightgray', linewidth=0.3, alpha=0.3)
             axes.grid(which='major', linewidth=0.4, alpha=0.9)
-
-            # Название текущего графика
-            plt.title(f"{data.name} МГц", loc='center')
 
     # def determine_max_y_tick(self, df: pd.DataFrame, df2: pd.DataFrame = None) -> None:
     #     """

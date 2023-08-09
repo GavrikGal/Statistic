@@ -73,17 +73,22 @@ class RadarDataLevels(BaseRadarData):
 
         # Пересмотреть все данные в ДатаФрейме шумов(noise_data), и вместо значений NaN установить
         # значение максимального шума на этой частоте с других направлений
+        # Значение шума не должно быть ниже 0 дБ
         for angle in noise_data:
             for frequency in noise_data[angle].index.values:
                 if np.isnan(noise_data[angle][frequency]):
                     noise_data[angle][frequency] = noise_data.loc[frequency].max()
+                if noise_data[angle][frequency] < 0:
+                    noise_data[angle][frequency] = 0
 
-        # Пересмотреть все данные в ДатаФрейме сигналов(signal_data), и вместо значений NaN установить
-        # значение 0 или максимального шума на этой частоте с других направлений уменьшенное на 10 дБ (смотря, что ниже)
+        # Пересмотреть все данные в ДатаФрейме сигналов(signal_data), и вместо значений NaN установить значение 0
+        # Значение сигнала не должно быть ниже 0 дБ
         for angle in signal_data:
             for frequency in signal_data[angle].index.values:
                 if np.isnan(signal_data[angle][frequency]):
                     signal_data[angle][frequency] = min(0, noise_data.loc[frequency].max() - 10)
+                if signal_data[angle][frequency] < 0:
+                    signal_data[angle][frequency] = 0
 
         data_s = signal_data.sort_index().T.sort_index()
         data_n = noise_data.sort_index().T.sort_index()
