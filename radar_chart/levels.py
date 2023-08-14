@@ -5,11 +5,11 @@ from radar_chart.radarplot.levels.plotter import RadarLevelsPlotter
 from radar_chart.radarplot.levels.data import RadarDataLevels
 
 
-DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 3 (Матрица обклеена лентой)\LVDS ГП'
+DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 4 (Стекло НВИТ...317)\LVDS ГП'
 DIR2_NAME = None
 
 # Если надо отрубить второй набор данных, то комментить следующую строчку
-DIR2_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 4 (Стекло НВИТ...317)\LVDS ГП'
+DIR2_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 5 (Уплотнители в задней части корпуса + дораб LVDS)\LVDS ГП'
 
 
 if __name__ == '__main__':
