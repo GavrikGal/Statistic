@@ -83,10 +83,17 @@ class RadarR2Plotter(BaseRadarPlotter):
             # Вычислить нижние уровни неопределённости зоны R2
             min_data = self.calc_lower_r2(rdata.data)
 
-            print(min_data)
+            # fill_between
 
             ax.plot(rdata.data, color=self.lines[i_rdata].color,
-                    linewidth=self.lines[i_rdata].width, linestyle=self.lines[i_rdata].style)
+                    linewidth=self.lines[i_rdata].width,
+                    linestyle=self.lines[i_rdata].style,
+                    alpha=0.9, zorder=i_rdata)
+            ax.fill_between(rdata.data.index.values, rdata.data, y2=min_data,
+                            color=self.lines[i_rdata].color,
+                            linewidth=0,
+                            linestyle=self.lines[i_rdata].style,
+                            alpha=0.5, zorder=i_rdata)
 
         # Если есть данные для сравнения, то отобразить и их
         # if self.rdata2 is not None:
@@ -105,5 +112,5 @@ class RadarR2Plotter(BaseRadarPlotter):
         # Настройка сетки графика
         ax.set_yticks(np.arange(0, self.max_y_tick, 5))
         ax.set_yticks(np.arange(0, self.max_y_tick, 1), minor=True)
-        ax.grid(which='minor', color='lightgray', linewidth=0.3, alpha=0.3)
-        ax.grid(which='major', linewidth=0.4, alpha=0.9)
+        ax.grid(which='minor', color='gray', linewidth=0.3, alpha=0.2)
+        ax.grid(which='major', color='dimgray', linewidth=0.4, alpha=0.5)

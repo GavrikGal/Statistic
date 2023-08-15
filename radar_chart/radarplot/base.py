@@ -109,13 +109,13 @@ class BaseRadarPlotter(abc.ABC):
         self.line1: Line = Line('r', '-', 1.6)
         self.line2: Union[None, Line] = None
         if self.rdata2 is not None:
-            self.line1 = Line('b', '--', 1.1)
-            self.line2 = Line('r', '-', 1.6)
+            self.line1 = Line('mediumblue', '--', 1.1)
+            self.line2 = Line('firebrick', '-', 1.6)
 
         # Список настроек стилей линий todo: стек для хранения линий, больше дефолтных настроек линий
         self.lines: List[Line] = [
-            Line('b', '--', 1.1),
-            Line('r', '-', 1.6)
+            Line('royalblue', '--', 1.1),
+            Line('tomato', '-', 1.6)
         ]
 
         # Построение графиков переопределенным методом
