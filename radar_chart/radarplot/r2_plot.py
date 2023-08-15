@@ -59,6 +59,16 @@ class RadarR2Plotter(BaseRadarPlotter):
         """
         BaseRadarPlotter.__init__(self, radar_data, radar_data2, radar_data_list, max_y_tick)
 
+    def calc_lower_r2(self, data: pd.Series) -> pd.Series:
+        """Вычисляет нижний уровень неопределенности зоны R2"""
+        min_data = []
+        for r2 in data:
+            if r2 < 10:
+                min_data.append(r2 - 1)
+            else:
+                min_data.append(r2 - 5)
+        return pd.Series(min_data)
+
     def make_plot(self):
         """Из данных о зонах R2 на различных углах подготавливает круговые диаграммы"""
         fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
@@ -67,14 +77,30 @@ class RadarR2Plotter(BaseRadarPlotter):
         if self.max_y_tick is not None:
             plt.ylim((0, self.max_y_tick))
 
-        # Построение линнии первых данных
-        ax.plot(self.rdata.data, color=self.line1.color,
-                linewidth=self.line1.width, linestyle=self.line1.style)
+        # Построение линнии данных
+        for i_rdata, rdata in enumerate(self.rdata_list):
+
+            # Вычислить нижние уровни неопределённости зоны R2
+            min_data = self.calc_lower_r2(rdata.data)
+
+            print(min_data)
+
+            ax.plot(rdata.data, color=self.lines[i_rdata].color,
+                    linewidth=self.lines[i_rdata].width, linestyle=self.lines[i_rdata].style)
 
         # Если есть данные для сравнения, то отобразить и их
-        if self.rdata2 is not None:
-            ax.plot(self.rdata2.data, color=self.line2.color,
-                    linewidth=self.line2.width, linestyle=self.line2.style)
+        # if self.rdata2 is not None:
+        #     ax.plot(self.rdata2.data, color=self.line2.color,
+        #             linewidth=self.line2.width, linestyle=self.line2.style)
+
+        # # Построение линнии первых данных
+        # ax.plot(self.rdata.data, color=self.line1.color,
+        #         linewidth=self.line1.width, linestyle=self.line1.style)
+        #
+        # # Если есть данные для сравнения, то отобразить и их
+        # if self.rdata2 is not None:
+        #     ax.plot(self.rdata2.data, color=self.line2.color,
+        #             linewidth=self.line2.width, linestyle=self.line2.style)
 
         # Настройка сетки графика
         ax.set_yticks(np.arange(0, self.max_y_tick, 5))

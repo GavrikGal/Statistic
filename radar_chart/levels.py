@@ -31,6 +31,6 @@ if __name__ == '__main__':
     plotter = RadarLevelsPlotter(data1, data2, radar_data_list=data_list, max_y_tick=50)
     # plotter.show()
     if DIR2_NAME is None:
-        plotter.save(DIR_NAME + '_plot.png')
+        plotter.save(DIR_NAME + ' [Уровни].png')
     else:
-        plotter.save(DIR2_NAME + '_compare.png')
+        plotter.save(DIR2_NAME + ' [Сравнение уровней].png')
