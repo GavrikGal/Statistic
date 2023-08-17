@@ -1,12 +1,9 @@
-import math
-import os
-
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from typing import List
 
-from ..base import BaseRadarData, BaseRadarPlotter
+from ..base import BaseRadarPlotter
 from ..radar_data import RadarDataR2
 
 
@@ -48,31 +45,18 @@ class RadarR2Plotter(BaseRadarPlotter):
             # Вычислить нижние уровни неопределённости зоны R2
             min_data = self.calc_lower_r2(rdata.data)
 
-            # fill_between
-
+            # Построить линии графика
             ax.plot(rdata.data, color=self.lines[i_rdata].color,
                     linewidth=self.lines[i_rdata].width,
                     linestyle=self.lines[i_rdata].style,
                     alpha=0.9, zorder=i_rdata)
+
+            # Заполнить неопределенность заливкой
             ax.fill_between(rdata.data.index.values, rdata.data, y2=min_data,
                             color=self.lines[i_rdata].color,
                             linewidth=0,
                             linestyle=self.lines[i_rdata].style,
                             alpha=0.5, zorder=i_rdata)
-
-        # Если есть данные для сравнения, то отобразить и их
-        # if self.rdata2 is not None:
-        #     ax.plot(self.rdata2.radar_data, color=self.line2.color,
-        #             linewidth=self.line2.width, linestyle=self.line2.style)
-
-        # # Построение линнии первых данных
-        # ax.plot(self.rdata.radar_data, color=self.line1.color,
-        #         linewidth=self.line1.width, linestyle=self.line1.style)
-        #
-        # # Если есть данные для сравнения, то отобразить и их
-        # if self.rdata2 is not None:
-        #     ax.plot(self.rdata2.radar_data, color=self.line2.color,
-        #             linewidth=self.line2.width, linestyle=self.line2.style)
 
         # Настройка сетки графика
         ax.set_yticks(np.arange(0, self.max_y_tick, 5))

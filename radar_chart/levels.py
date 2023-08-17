@@ -1,7 +1,5 @@
 import matplotlib
 
-# from radar_chart.radarplot.plotter.levels_plotter import RadarLevelsPlotter
-# from radar_chart.radarplot.radar_data.levels_data import RadarDataLevels
 from radarplot.radar_data import RadarDataLevels
 from radarplot.plotter import RadarLevelsPlotter
 
@@ -15,14 +13,11 @@ DIR2_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1
 
 if __name__ == '__main__':
     matplotlib.get_backend()
-
     matplotlib.use('QtAgg')
 
     data_list = None
 
     data1 = RadarDataLevels(DIR_NAME)
-    # print(40*'----')
-    # print(data1.radar_data)
     if DIR2_NAME is None:
         data2 = None
     else:

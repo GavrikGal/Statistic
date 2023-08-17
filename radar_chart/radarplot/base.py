@@ -1,5 +1,5 @@
 import abc
-from dataclasses import dataclass
+
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,7 +8,13 @@ import pathlib
 import re
 from typing import List, Union
 
-from .utils import make_unique_frequency_list, determine_max_y_tick
+from .utils import make_unique_frequency_list, determine_max_y_tick, Line
+
+
+DEFAULT_LINE_STYLES = [
+    Line('royalblue', '--', 1.1),
+    Line('tomato', '-', 1.6)
+]
 
 
 class BaseRadarData(abc.ABC):
@@ -69,18 +75,12 @@ class BaseRadarData(abc.ABC):
         return r2
 
 
-@dataclass
-class Line:
-    color: str = 'gray'
-    style: str = '-'
-    width: float = 1.
-
-
 class BaseRadarPlotter(abc.ABC):
     """Класс построителя круговых диаграмм по подготовленным данным о зонах R2 в RadarData"""
 
     def __init__(self, radar_data: BaseRadarData, radar_data2: BaseRadarData = None,
-                 radar_data_list: List[BaseRadarData] = None, max_y_tick: int = None):
+                 radar_data_list: List[BaseRadarData] = None, max_y_tick: int = None,
+                 line_styles: List[Line] = DEFAULT_LINE_STYLES):
         """
         Подготавливает графики с зонами R2 или Уровнями сигнала к отображению
 
@@ -113,10 +113,7 @@ class BaseRadarPlotter(abc.ABC):
             self.line2 = Line('firebrick', '-', 1.6)
 
         # Список настроек стилей линий todo: стек для хранения линий, больше дефолтных настроек линий
-        self.lines: List[Line] = [
-            Line('royalblue', '--', 1.1),
-            Line('tomato', '-', 1.6)
-        ]
+        self.lines = line_styles
 
         # Построение графиков переопределенным методом
         self.make_plot()

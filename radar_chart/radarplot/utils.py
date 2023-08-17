@@ -1,8 +1,15 @@
 import math
-
 import pandas as pd
 
+from dataclasses import dataclass
 from typing import List
+
+
+@dataclass
+class Line:
+    color: str = 'gray'
+    style: str = '-'
+    width: float = 1.
 
 
 def make_unique_frequency_list(data_list: List[pd.DataFrame]) -> List[float]:
@@ -14,8 +21,6 @@ def make_unique_frequency_list(data_list: List[pd.DataFrame]) -> List[float]:
     """
     frequency_set = set()
 
-    # print(data_list)
-
     # Каждую частоту из выборок добавить в set, который обеспечивает уникальность частот
     for frequencies in data_list:
         for freq in frequencies:
@@ -23,7 +28,6 @@ def make_unique_frequency_list(data_list: List[pd.DataFrame]) -> List[float]:
             frequency_set.add(freq)
 
     # Преобразуем set в list и возвращаем список уникальных частот
-    # print(frequency_set)
     return list(frequency_set)
 
 
