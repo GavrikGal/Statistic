@@ -15,11 +15,11 @@ if __name__ == '__main__':
 
     data1 = RadarDataR2(DIR_NAME)
     if DIR2_NAME is None:
-        data2 = None
+        data_list = [data1]
     else:
         data2 = RadarDataR2(DIR2_NAME)
         data_list = [data1, data2]
 
-    plotter = RadarR2Plotter(data1, data2, radar_data_list=data_list, max_y_tick=17)
+    plotter = RadarR2Plotter(data_list, max_y_tick=17)
     plotter.show()
     # plotter.save(DIR2_NAME + ' [Сравнение R2].png')

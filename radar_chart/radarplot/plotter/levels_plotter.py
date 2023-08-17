@@ -12,20 +12,16 @@ from ..radar_data import RadarDataLevels
 class RadarLevelsPlotter(BaseRadarPlotter):
     """Класс построителя круговых диаграмм по подготовленным данным об Уровнях сигналов в RadarData"""
 
-    def __init__(self, radar_data: RadarDataLevels, radar_data2: RadarDataLevels = None,
-                 radar_data_list: List[RadarDataLevels] = None, max_y_tick: int = None,
-                 col_count: int = 4):
+    def __init__(self, radar_data_list: List[RadarDataLevels],
+                 max_y_tick: int = None, col_count: int = 4):
         """
         Подготавливает графики с Уровнями сигналов к отображению
 
-        :param radar_data: данные об уровнях сигналов по углам первого измерения
-        :param radar_data2: данные об уровнях сигналов по углам второго измерения для отображения на графиках
-        с первыми данными
+        :param radar_data_list: список подготовленных данных с уровнями по углам
+        для сравнения
         :param max_y_tick: Предел шкалы уровней сигналов
         :param col_count: Количество колонок с графиками
         """
-        self.col_count: int = col_count
-        self.row_count: int = 4
 
         self.angels: List[float] = []
 
@@ -34,18 +30,21 @@ class RadarLevelsPlotter(BaseRadarPlotter):
             Line('firebrick', '-', 1)
         ]
 
-        BaseRadarPlotter.__init__(self, radar_data, radar_data2, radar_data_list,
+        BaseRadarPlotter.__init__(self, radar_data_list,
                                   max_y_tick, line_styles=line_styles)
+
+        self.col_count: int = col_count
+        # Рассчет количества графиков по вертикали и горизонтали
+        self.row_count = math.ceil(len(self.frequency_list) / self.col_count)
+
+        self.make_plot()
 
     def make_plot(self):
         """Из данных об Уровнях сигнала на различных угла подготавливает круговые диаграммы для каждой частоты"""
 
         # Список углов, на которых проводились измерения надо сохранить в self.angels,
-        self.angels = self.rdata.data.index.values
-        # если углы первой и второй выборки отличаются, то надо выкинуть ошибку  todo
-
-        # Рассчет количества графиков по вертикали и горизонтали
-        self.row_count = math.ceil(len(self.frequency_list) / self.col_count)
+        # todo: если углы первой и второй выборки отличаются, то надо выкинуть ошибку
+        self.angels = self.data_list[0].index.values
 
         # Размер холста
         plt.figure(layout='constrained', figsize=(self.col_count * 2.5, self.row_count * 3))
@@ -82,15 +81,11 @@ class RadarLevelsPlotter(BaseRadarPlotter):
                     # Построение графика шума
                     axes.bar(data.index.values, rdata.noise[frequency], width=0.81, edgecolor='dimgray', color=colors_n,
                              linewidth=0.6, zorder=1, alpha=0.4)
+
                     # Если есть только одна выборка, то бары сигнала во всю ширину сектора, иначе вполовину, сместить
                     # и покрасить ребра в различимые цвета
                     offset = 0
                     width_offset_ratio = 1
-
-                    # # todo: убрать
-                    # if len(self.rdata_list) == 1:
-                    #     self.line1.color = 'gray'
-                    #     self.line1.width = 0.4
 
                     # todo: переделать расчет ширины лепестков и их смещение от количества выборок (сделать функцию)
                     if len(self.rdata_list) > 1:

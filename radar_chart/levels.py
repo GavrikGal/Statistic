@@ -19,12 +19,12 @@ if __name__ == '__main__':
 
     data1 = RadarDataLevels(DIR_NAME)
     if DIR2_NAME is None:
-        data2 = None
+        data2 = [data1]
     else:
         data2 = RadarDataLevels(DIR2_NAME)
         data_list = [data1, data2]
 
-    plotter = RadarLevelsPlotter(data1, data2, radar_data_list=data_list, max_y_tick=50)
+    plotter = RadarLevelsPlotter(data_list, max_y_tick=50, col_count=5)
     # plotter.show()
     if DIR2_NAME is None:
         plotter.save(DIR_NAME + ' [Уровни].png')

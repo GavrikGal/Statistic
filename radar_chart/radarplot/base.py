@@ -78,26 +78,18 @@ class BaseRadarData(abc.ABC):
 class BaseRadarPlotter(abc.ABC):
     """Класс построителя круговых диаграмм по подготовленным данным о зонах R2 в RadarData"""
 
-    def __init__(self, radar_data: BaseRadarData, radar_data2: BaseRadarData = None,
-                 radar_data_list: List[BaseRadarData] = None, max_y_tick: int = None,
+    def __init__(self, radar_data_list: List[BaseRadarData], max_y_tick: int = None,
                  line_styles: List[Line] = DEFAULT_LINE_STYLES):
         """
         Подготавливает графики с зонами R2 или Уровнями сигнала к отображению
 
-        :param radar_data: данные о R2 по углам
-        :param radar_data2: второй набор данных о R2 для сравнения с первым
+        :param radar_data_list: список данных R2 по углам для сравнения
+        :param max_y_tick:
+        :param line_styles:
         """
-        self.rdata: BaseRadarData = radar_data
-        self.rdata2: BaseRadarData = radar_data2        # todo: избавиться от rdata2, заменив на список данных
 
-        self.rdata_list: List[BaseRadarData] = []
-        if radar_data_list is not None and len(radar_data_list) > 0:
-            self.rdata_list = radar_data_list
-        else:
-            self.rdata_list.append(self.rdata)
-
+        self.rdata_list: List[BaseRadarData] = radar_data_list
         self.data_list: List[pd.DataFrame] = [rdata.data for rdata in self.rdata_list]
-
         self.frequency_list: List[float] = sorted(make_unique_frequency_list(self.data_list))
 
         if max_y_tick is not None:
@@ -105,18 +97,11 @@ class BaseRadarPlotter(abc.ABC):
         else:
             self.max_y_tick = determine_max_y_tick(self.data_list)
 
-        # Настройки стилей линий зависят от наличия второго набора данных
-        self.line1: Line = Line('r', '-', 1.6)
-        self.line2: Union[None, Line] = None
-        if self.rdata2 is not None:
-            self.line1 = Line('mediumblue', '--', 1.1)
-            self.line2 = Line('firebrick', '-', 1.6)
-
         # Список настроек стилей линий todo: стек для хранения линий, больше дефолтных настроек линий
         self.lines = line_styles
 
-        # Построение графиков переопределенным методом
-        self.make_plot()
+        # # Построение графиков переопределенным методом
+        # self.make_plot()
 
     @abc.abstractmethod
     def make_plot(self):
@@ -130,6 +115,6 @@ class BaseRadarPlotter(abc.ABC):
     def save(self, path: str = None):
         """сохранить график"""
         if path is None:
-            plt.savefig(self.rdata.dir.joinpath('plot.png'), dpi=400)
+            plt.savefig(self.rdata_list[0].dir.joinpath(' [график].png'), dpi=400)
         else:
             plt.savefig(pathlib.Path(path), dpi=400)

@@ -24,5 +24,5 @@ class TestR2(unittest.TestCase):
 
         path = pathlib.Path(r'radar_chart/tests/data/DataSet 1/DVI ВП').resolve()
         radar_data = RadarDataR2(str(path))
-        plotter = RadarR2Plotter(radar_data)
+        plotter = RadarR2Plotter([radar_data])
         self.assertIsNotNone(plotter)

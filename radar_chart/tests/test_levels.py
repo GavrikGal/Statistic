@@ -24,5 +24,5 @@ class TestLevels(unittest.TestCase):
 
         path = pathlib.Path(r'radar_chart/tests/data/DataSet 1/DVI ВП').resolve()
         radar_data = RadarDataLevels(str(path))
-        plotter = RadarLevelsPlotter(radar_data)
+        plotter = RadarLevelsPlotter([radar_data])
         self.assertIsNotNone(plotter)

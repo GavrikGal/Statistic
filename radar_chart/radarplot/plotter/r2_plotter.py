@@ -5,21 +5,22 @@ from typing import List
 
 from ..base import BaseRadarPlotter
 from ..radar_data import RadarDataR2
+from ..utils import Line
 
 
 class RadarR2Plotter(BaseRadarPlotter):
     """Класс построителя круговых диаграмм по подготовленным данным о зонах R2 в RadarData"""
 
-    def __init__(self, radar_data: RadarDataR2, radar_data2: RadarDataR2 = None,
-                 radar_data_list: List[RadarDataR2] = None, max_y_tick: int = None):
+    def __init__(self, radar_data_list: List[RadarDataR2] = None, max_y_tick: int = None,
+                 line_styles: List[Line] = None):
         """
         Подготавливает графики с зонами R2 к отображению
 
-        :param radar_data: данные о R2 по углам
-        :param radar_data2: второй набор данных о R2 для сравнения с первым
+        :param radar_data_list: список подготовленных данных R2 по углам для сравнения
         :param max_y_tick: Предел шкалы зон R2
         """
-        BaseRadarPlotter.__init__(self, radar_data, radar_data2, radar_data_list, max_y_tick)
+        BaseRadarPlotter.__init__(self, radar_data_list, max_y_tick)
+        self.make_plot()
 
     def calc_lower_r2(self, data: pd.Series) -> pd.Series:
         """Вычисляет нижний уровень неопределенности зоны R2"""
