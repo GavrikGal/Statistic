@@ -6,8 +6,8 @@ import pandas as pd
 from typing import List
 
 from ..base import BaseRadarPlotter, Line
-from ..utils import make_unique_frequency_list
-from .data import RadarDataLevels
+# from radar_chart.radarplot.radar_data.levels_data import RadarDataLevels
+from ..radar_data import RadarDataLevels
 
 
 class RadarLevelsPlotter(BaseRadarPlotter):
@@ -109,24 +109,24 @@ class RadarLevelsPlotter(BaseRadarPlotter):
                              linewidth=self.lines[i_rdata].width, zorder=5, alpha=0.8)
 
             # if frequency in self.frequency_list:
-            #     data = self.rdata.data[frequency]
+            #     radar_data = self.rdata.radar_data[frequency]
             #
             #     # Настройка цвет и ширины бара
-            #     color_ratio_s = (data - min_color_ratio) / (self.max_y_tick - min_color_ratio)
+            #     color_ratio_s = (radar_data - min_color_ratio) / (self.max_y_tick - min_color_ratio)
             #     color_ratio_n = (self.rdata.noise[frequency] - min_color_ratio) / (self.max_y_tick - min_color_ratio)
             #     colors_s = plt.cm.jet(color_ratio_s)
             #     colors_n = plt.cm.jet(color_ratio_n)
             #
             #     # todo: навести порядок на рефайкторинге
-            #     width_ratio = (data - min_width_ratio) / (self.max_y_tick - min_width_ratio)
+            #     width_ratio = (radar_data - min_width_ratio) / (self.max_y_tick - min_width_ratio)
             #     if self.rdata2 is not None:
-            #         signal_max = max(self.rdata.data.max().max(), self.rdata2.data.max().max())
-            #         width_ratio = (data - min_width_ratio) / (signal_max - min_width_ratio)
+            #         signal_max = max(self.rdata.radar_data.max().max(), self.rdata2.radar_data.max().max())
+            #         width_ratio = (radar_data - min_width_ratio) / (signal_max - min_width_ratio)
             #         width_ratio *= 0.9
-            #     width = (2 * np.pi / data.shape[0]) * width_ratio
+            #     width = (2 * np.pi / radar_data.shape[0]) * width_ratio
             #
             #     # Построение графика шума
-            #     axes.bar(data.index.values, self.rdata.noise[frequency], width=0.81, edgecolor='dimgray', color=colors_n,
+            #     axes.bar(radar_data.index.values, self.rdata.noise[frequency], width=0.81, edgecolor='dimgray', color=colors_n,
             #              linewidth=0.6, zorder=1, alpha=0.8)
             #     # Если есть только одна выборка, то бары сигнала во всю ширину сектора, иначе вполовину, сместить
             #     # и покрасить ребра в различимые цвета
@@ -146,32 +146,32 @@ class RadarLevelsPlotter(BaseRadarPlotter):
             #         offset1 = -(((width * width_offset_ratio) / 2) - ((width * width_offset_ratio) - (width / 2)))
             #
             #     # Построить график сигнала
-            #     axes.bar(data.index.values+offset1, data,
+            #     axes.bar(radar_data.index.values+offset1, radar_data,
             #              width=width*width_offset_ratio,
             #              edgecolor=self.line1.color, color=colors_s,
             #              linewidth=self.line1.width, zorder=5, alpha=0.8)
 
             # Если есть вторая выборка, построить дня нее график
             # if self.rdata2 is not None:
-            #     if frequency in self.rdata2.data.columns.values:
-            #         data = self.rdata2.data[frequency]
+            #     if frequency in self.rdata2.radar_data.columns.values:
+            #         radar_data = self.rdata2.radar_data[frequency]
             #
             #         # Настройка цвет и ширины бара
-            #         color_ratio_s = (data - min_color_ratio) / (self.max_y_tick - min_color_ratio)
+            #         color_ratio_s = (radar_data - min_color_ratio) / (self.max_y_tick - min_color_ratio)
             #         color_ratio_n = (self.rdata2.noise[frequency] - min_color_ratio) / (self.max_y_tick -
             #                                                                             min_color_ratio)
             #         colors_s = plt.cm.jet(color_ratio_s)
             #         colors_n = plt.cm.jet(color_ratio_n)
             #
             #         # todo: навести порядок на рефайкторинге
-            #         signal_max = max(self.rdata.data.max().max(), self.rdata2.data.max().max())
-            #         width_ratio = (data - min_width_ratio) / (signal_max - min_width_ratio)
+            #         signal_max = max(self.rdata.radar_data.max().max(), self.rdata2.radar_data.max().max())
+            #         width_ratio = (radar_data - min_width_ratio) / (signal_max - min_width_ratio)
             #         width_ratio *= 0.9
-            #         width = (2 * np.pi / data.shape[0]) * width_ratio
+            #         width = (2 * np.pi / radar_data.shape[0]) * width_ratio
             #
             #         # Построение графика шума
-            #         if frequency not in self.rdata.data.columns.values:
-            #             axes.bar(data.index.values, self.rdata2.noise[frequency], width=0.81, edgecolor='dimgray', color=colors_n,
+            #         if frequency not in self.rdata.radar_data.columns.values:
+            #             axes.bar(radar_data.index.values, self.rdata2.noise[frequency], width=0.81, edgecolor='dimgray', color=colors_n,
             #                      linewidth=0.6, zorder=1)
             #
             #         # Если есть только одна выборка, то бары сигнала во всю ширину сектора, иначе вполовину, сместить
@@ -183,7 +183,7 @@ class RadarLevelsPlotter(BaseRadarPlotter):
             #             offset1 = (((width * width_offset_ratio) / 2) - ((width * width_offset_ratio) - (width / 2)))
             #
             #         # Построить график сигнала
-            #         axes.bar(data.index.values+offset1, data,
+            #         axes.bar(radar_data.index.values+offset1, radar_data,
             #                  width=width*width_offset_ratio,
             #                  edgecolor=self.line2.color, color=colors_s,
             #                  linewidth=self.line2.width, zorder=6, alpha=0.8)

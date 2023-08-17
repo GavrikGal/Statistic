@@ -2,7 +2,8 @@ import unittest
 import pathlib
 
 
-from radar_chart.radarplot.r2_plot import RadarDataR2, RadarR2Plotter
+from radar_chart.radarplot.radar_data import RadarDataR2
+from radar_chart.radarplot.plotter import RadarR2Plotter
 
 
 class TestR2(unittest.TestCase):

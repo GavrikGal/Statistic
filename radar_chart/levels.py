@@ -1,8 +1,9 @@
 import matplotlib
-import tkinter
 
-from radar_chart.radarplot.levels.plotter import RadarLevelsPlotter
-from radar_chart.radarplot.levels.data import RadarDataLevels
+# from radar_chart.radarplot.plotter.levels_plotter import RadarLevelsPlotter
+# from radar_chart.radarplot.radar_data.levels_data import RadarDataLevels
+from radarplot.radar_data import RadarDataLevels
+from radarplot.plotter import RadarLevelsPlotter
 
 
 DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 4 (Стекло НВИТ...317)\LVDS ГП'
@@ -21,7 +22,7 @@ if __name__ == '__main__':
 
     data1 = RadarDataLevels(DIR_NAME)
     # print(40*'----')
-    # print(data1.data)
+    # print(data1.radar_data)
     if DIR2_NAME is None:
         data2 = None
     else:
