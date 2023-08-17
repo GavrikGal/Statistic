@@ -26,8 +26,9 @@ class RadarLevelsPlotter(BaseRadarPlotter):
         self.angels: List[float] = []
 
         line_styles = [
+            Line('firebrick', '-', 1),
             Line('mediumblue', '-', 1),
-            Line('firebrick', '-', 1)
+            Line('forestgreen', ':', 1)
         ]
 
         BaseRadarPlotter.__init__(self, radar_data_list,
@@ -57,46 +58,49 @@ class RadarLevelsPlotter(BaseRadarPlotter):
             # Настройка шкалы уровней текущего графика
             plt.ylim((0, self.max_y_tick))
 
-            # Общие настройки коэффициентов графиков
-            min_color_ratio = 10
-            min_width_ratio = -10
-
             # Название текущего графика
             plt.title(f"{frequency} МГц", loc='center')
 
-            for i_rdata, rdata in enumerate(self.rdata_list):
+            # При построении графиков используется обратный порядок построения,
+            # чтобы график с последними данными был сверху
+            for i_rdata, rdata in enumerate(reversed(self.rdata_list)):
                 if frequency in rdata.data.columns.values:
-                    data = rdata.data[frequency]
+                    signal = rdata.data[frequency]
+                    noise = rdata.noise[frequency]
 
-                    # Настройка цвет и ширины бара
-                    color_ratio_s = (data - min_color_ratio) / (self.max_y_tick - min_color_ratio)
-                    color_ratio_n = (rdata.noise[frequency] - min_color_ratio) / (self.max_y_tick - min_color_ratio)
-                    colors_s = plt.cm.jet(color_ratio_s)
-                    colors_n = plt.cm.jet(color_ratio_n)
+                    # Настройка цвета лепестков
+                    min_color_factor = 10
+                    color_signal_factors = (signal - min_color_factor) / (self.max_y_tick - min_color_factor)
+                    color_noise_factors = (noise - min_color_factor) / (self.max_y_tick - min_color_factor)
+                    signal_colors = plt.cm.jet(color_signal_factors)
+                    noise_colors = plt.cm.jet(color_noise_factors)
 
-                    # todo: навести порядок на рефайкторинге
-                    width_ratio = (data - min_width_ratio) / (self.max_y_tick - min_width_ratio)
-                    width = (2 * np.pi / data.shape[0]) * width_ratio
+                    # Настройка ширины лепестков
+                    min_width_factor = -10
+                    width_factors = (signal - min_width_factor) / (self.max_y_tick - min_width_factor)
+                    segment_width = (2 * np.pi / signal.shape[0])
+                    widths = segment_width * width_factors
 
                     # Построение графика шума
-                    axes.bar(data.index.values, rdata.noise[frequency], width=0.81, edgecolor='dimgray', color=colors_n,
-                             linewidth=0.6, zorder=1, alpha=0.4)
+                    axes.bar(noise.index.values, noise, width=0.8, edgecolor='dimgray', color=noise_colors,
+                             linewidth=0.6, zorder=3, alpha=0.5/len(self.rdata_list))
 
-                    # Если есть только одна выборка, то бары сигнала во всю ширину сектора, иначе вполовину, сместить
-                    # и покрасить ребра в различимые цвета
-                    offset = 0
-                    width_offset_ratio = 1
-
-                    # todo: переделать расчет ширины лепестков и их смещение от количества выборок (сделать функцию)
+                    # Расчет ширины лепестков и их смещение от количества выборок
+                    # todo: переделать (сделать функцию)
+                    base_count_factor = 0.9
                     if len(self.rdata_list) > 1:
-                        width_offset_ratio = 0.8
-                        offset = 2 * (((width * width_offset_ratio) / 2) - ((width * width_offset_ratio) - (width / 2)))
+                        width_count_factor = base_count_factor - 0.1 * (len(self.rdata_list) - 1)
+                        offset = (((widths * width_count_factor) / 2) - ((widths * width_count_factor) - (widths / 2)))
+                    else:
+                        width_count_factor = base_count_factor
+                        offset = 0
 
                     # Построить график сигнала
-                    axes.bar(data.index.values-offset/2+(i_rdata*offset), data,
-                             width=width*width_offset_ratio,
-                             edgecolor=self.lines[i_rdata].color, color=colors_s,
-                             linewidth=self.lines[i_rdata].width, zorder=5, alpha=0.8)
+                    segment_positions = signal.index.values - ((widths * width_count_factor) / 2 + offset)
+                    axes.bar(segment_positions, signal,
+                             width=widths*width_count_factor,
+                             edgecolor=self.lines[i_rdata].color, color=signal_colors,
+                             linewidth=self.lines[i_rdata].width, zorder=10-i_rdata, alpha=0.8)
 
             # Настройка сетки графика
             axes.tick_params(axis='both', which='major', labelsize=8)

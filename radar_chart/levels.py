@@ -4,29 +4,24 @@ from radarplot.radar_data import RadarDataLevels
 from radarplot.plotter import RadarLevelsPlotter
 
 
-DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 4 (Стекло НВИТ...317)\LVDS ГП'
-DIR2_NAME = None
-
-# Если надо отрубить второй набор данных, то комментить следующую строчку
-DIR2_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 5 (Уплотнители в задней части корпуса + дораб LVDS)\LVDS ГП'
+DIR_LIST = [
+    # r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 3 (Матрица обклеена лентой)\LVDS ГП',
+    # r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 4 (Стекло НВИТ...317)\LVDS ГП',
+    r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 5 (Уплотнители в задней части корпуса + дораб LVDS)\TEST',
+    r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 5 (Уплотнители в задней части корпуса + дораб LVDS)\TEST2',
+    r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 5 (Уплотнители в задней части корпуса + дораб LVDS)\TEST3',
+]
 
 
 if __name__ == '__main__':
     matplotlib.get_backend()
     matplotlib.use('QtAgg')
 
-    data_list = None
+    data_list = list(map(RadarDataLevels, DIR_LIST))
 
-    data1 = RadarDataLevels(DIR_NAME)
-    if DIR2_NAME is None:
-        data2 = [data1]
-    else:
-        data2 = RadarDataLevels(DIR2_NAME)
-        data_list = [data1, data2]
-
-    plotter = RadarLevelsPlotter(data_list, max_y_tick=50, col_count=5)
+    plotter = RadarLevelsPlotter(data_list, max_y_tick=60, col_count=2)
     # plotter.show()
-    if DIR2_NAME is None:
-        plotter.save(DIR_NAME + ' [Уровни].png')
+    if len(data_list) < 2:
+        plotter.save(DIR_LIST[-1] + ' [Уровни].png')
     else:
-        plotter.save(DIR2_NAME + ' [Сравнение уровней].png')
+        plotter.save(DIR_LIST[-1] + ' [Сравнение уровней].png')

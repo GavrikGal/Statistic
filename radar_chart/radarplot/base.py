@@ -13,7 +13,8 @@ from .utils import make_unique_frequency_list, determine_max_y_tick, Line
 
 DEFAULT_LINE_STYLES = [
     Line('royalblue', '--', 1.1),
-    Line('tomato', '-', 1.6)
+    Line('tomato', '-', 1.6),
+    Line('forestgreen', ':', 1)
 ]
 
 
