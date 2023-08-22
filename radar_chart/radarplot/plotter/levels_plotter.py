@@ -28,7 +28,8 @@ class RadarLevelsPlotter(BaseRadarPlotter):
         line_styles = [
             Line('firebrick', '-', 1),
             Line('mediumblue', '-', 1),
-            Line('forestgreen', ':', 1)
+            Line('forestgreen', ':', 1),
+            Line('darkorange', ':', 1),
         ]
 
         BaseRadarPlotter.__init__(self, radar_data_list,
@@ -88,15 +89,18 @@ class RadarLevelsPlotter(BaseRadarPlotter):
                     # Расчет ширины лепестков и их смещение от количества выборок
                     # todo: переделать (сделать функцию)
                     base_count_factor = 0.9
+                    gap_between_bars = 0.05
                     if len(self.rdata_list) > 1:
-                        width_count_factor = base_count_factor - 0.1 * (len(self.rdata_list) - 1)
-                        offset = (((widths * width_count_factor) / 2) - ((widths * width_count_factor) - (widths / 2)))
+                        width_count_factor = base_count_factor - 0.1 * (len(self.rdata_list) - 1) - gap_between_bars * base_count_factor
+                        offset = (0.2 * width_count_factor) * widths
+                        # todo: не работает offset = (((widths * width_count_factor) / 2) - ((widths * width_count_factor) - (widths / 2)))
                     else:
                         width_count_factor = base_count_factor
                         offset = 0
 
                     # Построить график сигнала
-                    segment_positions = signal.index.values - ((widths * width_count_factor) / 2 + offset)
+                    # todo: не работает segment_positions = signal.index.values - ((widths * width_count_factor) / 2 + offset)
+                    segment_positions = signal.index.values + (i_rdata - ((len(self.rdata_list) - 1) / 2)) * offset
                     axes.bar(segment_positions, signal,
                              width=widths*width_count_factor,
                              edgecolor=self.lines[i_rdata].color, color=signal_colors,
