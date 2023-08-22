@@ -5,7 +5,7 @@ import pandas as pd
 
 from typing import List
 
-from ..base import BaseRadarPlotter, Line
+from radar_chart.radarplot.plotter.base import BaseRadarPlotter, Line
 from ..radar_data import RadarDataLevels
 
 

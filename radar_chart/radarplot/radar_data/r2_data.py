@@ -1,6 +1,6 @@
 import pandas as pd
 
-from radar_chart.radarplot.base import BaseRadarData
+from .base import BaseRadarData
 
 
 class RadarDataR2(BaseRadarData):

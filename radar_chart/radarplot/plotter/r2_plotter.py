@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from typing import List
 
-from ..base import BaseRadarPlotter
+from radar_chart.radarplot.plotter.base import BaseRadarPlotter
 from ..radar_data import RadarDataR2
 from ..utils import Line
 

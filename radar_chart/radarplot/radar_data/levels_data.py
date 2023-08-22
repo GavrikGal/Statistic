@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 from typing import List
 
-from radar_chart.radarplot.base import BaseRadarData
-from radar_chart.radarplot.utils import make_unique_frequency_list
+from .base import BaseRadarData
+from ..utils import make_unique_frequency_list
 
 
 MIN_VALUE = 0
