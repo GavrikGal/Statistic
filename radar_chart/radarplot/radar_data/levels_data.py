@@ -17,7 +17,7 @@ class RadarDataLevels(BaseRadarData):
 
     def __init__(self, dir_path: str):
         """
-        Подготавливае данные об уровнях излучений (на всех углах измерений) из папки dir_path
+        Подготавливает данные об уровнях излучений (на всех углах измерений) из папки dir_path
         для отображения их на круговых диаграммах
         :param dir_path: путь к папке со списком файлов данных
         """
@@ -46,19 +46,22 @@ class RadarDataLevels(BaseRadarData):
         """
         Читает имя каждого файла из списка self.files парсит в нем угол, на котором проводились измерения,
         и измеренный уровень сигнала. Из этих данных формирует ДатаФрейм для всех положений (углов) измерений
-        и для всех частот, на которых обраружены сигналы
+        и для всех частот, на которых обнаружены сигналы
 
         :return: ДатаСерия с углами, в качестве индексов, и уровнями сигнала, в качестве значений
         """
 
         # Получить список всех частот из всех файлов
-        self.frequencies = self.read_frequency_set()
+        # self.frequencies = self.read_frequency_set()
 
-        # Инициировать DataFrame сигналов и шумов с частотами в качестве индексов
-        signal_data = pd.DataFrame(index=np.array(self.frequencies))
-        noise_data = pd.DataFrame(index=np.array(self.frequencies))
+        # # Инициировать DataFrame сигналов и шумов с частотами в качестве индексов
+        # signal_data = pd.DataFrame(index=np.array(self.frequencies))
+        # noise_data = pd.DataFrame(index=np.array(self.frequencies))
 
-        # Перебрать все файлы и вычитать есть ли в них данные на тех частотах, список которых нашли ранее
+        signal_data = pd.DataFrame()
+        noise_data = pd.DataFrame()
+
+        # Перебрать все файлы и составить датафреймы сигналов и шумов
         for filename in self.files:
             # получить величину угла из названия файла
             angle = self.get_angle_from_filename(filename)

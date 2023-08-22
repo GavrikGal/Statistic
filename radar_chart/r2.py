@@ -1,7 +1,7 @@
 import matplotlib
 
-from .radarplot.radar_data import RadarDataR2
-from .radarplot.plotter import RadarR2Plotter
+from radarplot.radar_data import RadarDataR2
+from radarplot.plotter import RadarR2Plotter
 
 
 DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 4 (Стекло НВИТ...317)\DVI max'
