@@ -12,7 +12,7 @@ DIR2_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1
 
 if __name__ == '__main__':
     matplotlib.get_backend()
-    # matplotlib.use('QtAgg')
+    matplotlib.use('QtAgg')
 
     data1 = RadarDataR2(DIR_NAME)
     if DIR2_NAME is None:
@@ -22,5 +22,5 @@ if __name__ == '__main__':
         data_list = [data1, data2]
 
     plotter = RadarR2Plotter(data_list, max_y_tick=17)
-    plotter.show()
-    # plotter.save(DIR2_NAME + ' [Сравнение R2].png')
+    # plotter.show()
+    plotter.save(DIR2_NAME + ' [Сравнение R2].png')
