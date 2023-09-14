@@ -11,8 +11,8 @@ from ..radar_data.base import BaseRadarData
 
 
 DEFAULT_LINE_STYLES = [
-    Line('tomato', '-', 1.6),
     Line('royalblue', '--', 1.1),
+    Line('tomato', '-', 1.6),
     Line('forestgreen', ':', 1)
 ]
 

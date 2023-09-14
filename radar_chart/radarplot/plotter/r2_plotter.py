@@ -26,7 +26,7 @@ class RadarR2Plotter(BaseRadarPlotter):
         """Вычисляет нижний уровень неопределенности зоны R2"""
         min_data = []
         for r2 in data:
-            if r2 < 10:
+            if r2 <= 10:
                 min_data.append(r2 - 1)
             else:
                 min_data.append(r2 - 5)

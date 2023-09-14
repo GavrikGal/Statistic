@@ -8,7 +8,7 @@ DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\М
 DIR2_NAME = None
 
 # Если надо отрубить второй набор данных, то комментить следующую строчку
-# DIR2_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\1903103\Доработка 5 (Уплотнители в задней части корпуса + дораб LVDS)\DVI max'
+DIR2_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ВМЦ-61.2ЖК\Монитор без краски\С напылением\DVI max'
 
 if __name__ == '__main__':
     matplotlib.get_backend()
