@@ -27,7 +27,7 @@ class BaseRadarData(abc.ABC):
         self.dir: pathlib.Path = pathlib.Path(dir_path)
         self.files: List[str] = self.read_filenames()
         self.noise: Union[None, pd.DataFrame] = None
-        self.data: Union[pd.Series, pd.DataFrame] = self.make_data()
+        self.data: pd.DataFrame = self.make_data()
 
     def read_filenames(self) -> List[str]:
         """
@@ -39,14 +39,14 @@ class BaseRadarData(abc.ABC):
         return file_list
 
     @abc.abstractmethod
-    def make_data(self) -> Union[pd.Series, pd.DataFrame]:
+    def make_data(self) -> pd.DataFrame:
         """
         Должен читать имя каждого файла из списка self.files, парсить в нем угол, на котором проводились
         измерения, и, в зависимости от необходимости, парсит либо результат рассчитанной зоны R2,
         либо результаты измеренных уровней. Из этих данных формирует набор данный pandas
         для всех положений (углов) измерений
 
-        :return: Набор данных pandas.Series или pandas.DataFrame с углами, в качестве индексов,
+        :return: Набор данных pandas.DataFrame с углами, в качестве индексов,
         и R2 или Уровней, в качестве значений
         """
 

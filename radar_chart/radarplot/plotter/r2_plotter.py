@@ -22,15 +22,15 @@ class RadarR2Plotter(BaseRadarPlotter):
         BaseRadarPlotter.__init__(self, radar_data_list, max_y_tick)
         self.make_plot()
 
-    def calc_lower_r2(self, data: pd.Series) -> pd.Series:
-        """Вычисляет нижний уровень неопределенности зоны R2"""
-        min_data = []
-        for r2 in data:
-            if r2 <= 10:
-                min_data.append(r2 - 1)
-            else:
-                min_data.append(r2 - 5)
-        return pd.Series(min_data)
+    # def calc_lower_r2(self, data: pd.Series) -> pd.Series:
+    #     """Вычисляет нижний уровень неопределенности зоны R2"""
+    #     min_data = []
+    #     for r2 in data:
+    #         if r2 <= 10:
+    #             min_data.append(r2 - 1)
+    #         else:
+    #             min_data.append(r2 - 5)
+    #     return pd.Series(min_data)
 
     def make_plot(self):
         """Из данных о зонах R2 на различных углах подготавливает круговые диаграммы"""
@@ -44,20 +44,27 @@ class RadarR2Plotter(BaseRadarPlotter):
         for i_rdata, rdata in enumerate(self.rdata_list):
 
             # Вычислить нижние уровни неопределённости зоны R2
-            min_data = self.calc_lower_r2(rdata.data)
+            # min_data = self.calc_lower_r2(rdata.data)
 
             # Построить линии графика
-            ax.plot(rdata.data, color=self.lines[i_rdata].color,
+            ax.plot(rdata.data.index.values, rdata.data['main'], color=self.lines[i_rdata].color,
                     linewidth=self.lines[i_rdata].width,
                     linestyle=self.lines[i_rdata].style,
                     alpha=0.9, zorder=i_rdata)
 
             # Заполнить неопределенность заливкой
-            ax.fill_between(rdata.data.index.values, rdata.data, y2=min_data,
-                            color=self.lines[i_rdata].color,
-                            linewidth=0,
-                            linestyle=self.lines[i_rdata].style,
-                            alpha=0.5, zorder=i_rdata)
+            if 'lower' in rdata.data.columns:
+                ax.fill_between(rdata.data.index.values, rdata.data['main'], y2=rdata.data['lower'],
+                                color=self.lines[i_rdata].color,
+                                linewidth=0,
+                                linestyle=self.lines[i_rdata].style,
+                                alpha=0.5, zorder=i_rdata)
+            if 'upper' in rdata.data.columns:
+                ax.fill_between(rdata.data.index.values, rdata.data['main'], y2=rdata.data['upper'],
+                                color=self.lines[i_rdata].color,
+                                linewidth=0,
+                                linestyle=self.lines[i_rdata].style,
+                                alpha=0.5, zorder=i_rdata)
 
         # Настройка сетки графика
         ax.set_yticks(np.arange(0, self.max_y_tick, 5))
