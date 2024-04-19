@@ -25,7 +25,7 @@ class BaseRadarData(abc.ABC):
         :param dir_path: путь к папке со списком файлов данных
         """
         self.dir: pathlib.Path = pathlib.Path(dir_path)
-        self.files: List[str] = self.read_filenames()
+        self.files: Union[List[str], List[pathlib.Path]] = self.read_filenames()
         self.noise: Union[None, pd.DataFrame] = None
         self.data: pd.DataFrame = self.make_data()
 

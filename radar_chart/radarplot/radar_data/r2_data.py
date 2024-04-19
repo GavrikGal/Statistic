@@ -25,7 +25,7 @@ class RadarDataR2(BaseRadarData):
         data = pd.DataFrame(columns=["angle", "main", "lower"])
         # Перебрать названия всех файлов папки и выбрать из них угол,
         # на котором проводились измерения, и радиус зоны R2
-        for i, filename in enumerate(self.files):
+        for filename in self.files:
             angle = self.get_angle_from_filename(filename)
             r2 = self.get_r2_from_filename(filename)
             min_r2 = self._calc_lower_r2(r2)
