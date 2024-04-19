@@ -53,10 +53,10 @@ class BaseRadarData(abc.ABC):
     @staticmethod
     def get_angle_from_filename(filename: str) -> float:
         """
-        Парсит имя файла на угол, на котором проводились измерения, и результат рассчитанной зоны R2
+        Парсит имя файла на угол, на котором проводились измерения
 
         :param filename: имя файла
-        :return: угол, R2
+        :return: угол
         """
         angle = np.deg2rad(float(re.findall(r'\((\d+)\)', filename)[0]))
         return angle
@@ -64,10 +64,10 @@ class BaseRadarData(abc.ABC):
     @staticmethod
     def get_r2_from_filename(filename: str) -> float:
         """
-        Парсит имя файла на угол, на котором проводились измерения, и результат рассчитанной зоны R2
+        Парсит имя файла на результат рассчитанной зоны R2
 
         :param filename: имя файла
-        :return: угол, R2
+        :return: R2
         """
         r2 = float(re.findall(r'\) (\d+)', filename)[0])
         return r2
