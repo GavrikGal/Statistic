@@ -8,6 +8,9 @@ from typing import List
 from .base import BaseRadarData
 
 
+COVERAGE_FACTOR = 2   # Коэффициент охвата. При расчете расширенной неопределенности
+
+
 class RadarDataR2ManyMeas(BaseRadarData):
     """Класс данных для круговых диаграмм зон R2 по углам"""
 
@@ -40,8 +43,8 @@ class RadarDataR2ManyMeas(BaseRadarData):
             filename = self._get_filename(file)
             angle = self.get_angle_from_filename(filename)
             r2 = self.get_r2_from_filename(filename)
-            rounding_uncertainty = (r2 - self._calc_lower_r2(r2))  # todo: уточнить расчет неопределенности округления
-            r2 = r2 - (rounding_uncertainty / 2)
+            rounding_uncertainty = (r2 - self._calc_lower_r2(r2)) / 2  # todo: уточнить расчет неопределенности округления
+            r2 = r2 - rounding_uncertainty
 
             new_row = {'meas_name': meas_name, 'interface': interface,
                        'polarisation': polarisation, 'angle': angle, 'r2': r2,
@@ -58,9 +61,9 @@ class RadarDataR2ManyMeas(BaseRadarData):
 
         count = grouped_r2_angle['count'].max()
 
-        grouped_r2_angle['uncertainty'] = 2 * grouped_r2_angle['std'] / math.sqrt(count)
-        grouped_r2_angle['total_uncertainty'] = 2 * ((grouped_r2_angle['uncertainty'] / 2) ** 2 +
-                                                     (grouped_rounding_angle['rounding'] / 2) ** 2) ** 0.5
+        grouped_r2_angle['uncertainty'] = grouped_r2_angle['std'] / math.sqrt(count)
+        grouped_r2_angle['total_uncertainty'] = COVERAGE_FACTOR * (grouped_r2_angle['uncertainty'] ** 2 +
+                                                                   grouped_rounding_angle['rounding'] ** 2) ** 0.5
 
         data = pd.DataFrame(columns=["angle", "main", "lower"])
         data['angle'] = grouped_r2_angle['angle']

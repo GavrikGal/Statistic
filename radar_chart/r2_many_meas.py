@@ -9,7 +9,10 @@ LINE_STYLES = [
     Line('tab:red', '-', 1.6, 0.8)
 ]
 
-DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ЭВМ БК-ТЗ-4К\8. DVI [кабель - доработанный, нагрузка - БК-ТЗ-А1] (все частоты + фон)'
+DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ЭВМ БК-ТЗ-4К\1. DVI [кабель - доработанный, нагрузка - монитор Asus]'
+DIR_NAMES = [r'd:\WorkSpace\Python\pythonProject\Statistic\data\ЭВМ БК-ТЗ-4К\1. DVI [кабель - доработанный, нагрузка - монитор Asus]',
+             r'd:\WorkSpace\Python\pythonProject\Statistic\data\ЭВМ БК-ТЗ-4К\9. VGA [кабель - НВИТ, нагрузка - БК-ТЗ-А1] (все частоты + фон)',
+             r'd:\WorkSpace\Python\pythonProject\Statistic\data\ЭВМ БК-ТЗ-4К\10. DVI [кабель - доработанный, нагрузка - ВМЦ-61.2ЖК(крэмз 10м)] (все частоты + фон)']
 DIR2_NAME = None
 
 # Если надо отрубить второй набор данных, то комментить следующую строчку
@@ -19,16 +22,17 @@ if __name__ == '__main__':
     matplotlib.get_backend()
     matplotlib.use('QtAgg')
 
-    data1 = RadarDataR2ManyMeas(DIR_NAME)
-    if DIR2_NAME is None:
-        data_list = [data1]
-        output_file_name = DIR_NAME + ' [График R2].png'
-    else:
-        data2 = RadarDataR2ManyMeas(DIR2_NAME)
-        data_list = [data1, data2]
-        output_file_name = DIR2_NAME + ' [Сравнение R2].png'
+    for dir_name in DIR_NAMES:
+        data1 = RadarDataR2ManyMeas(dir_name)
+        if DIR2_NAME is None:
+            data_list = [data1]
+            output_file_name = dir_name + ' [График R2].png'
+        else:
+            data2 = RadarDataR2ManyMeas(DIR2_NAME)
+            data_list = [data1, data2]
+            output_file_name = DIR2_NAME + ' [Сравнение R2].png'
 
-    plotter = RadarR2Plotter(data_list, max_y_tick=13, line_styles=LINE_STYLES)
-    # plotter = RadarR2Plotter(data_list, max_y_tick=17)
-    # plotter.show()
-    plotter.save(output_file_name)
+        plotter = RadarR2Plotter(data_list, max_y_tick=13, line_styles=LINE_STYLES)
+        # plotter = RadarR2Plotter(data_list, max_y_tick=17)
+        # plotter.show()
+        plotter.save(output_file_name)
