@@ -10,6 +10,7 @@ class Line:
     color: str = 'gray'
     style: str = '-'
     width: float = 1.
+    alpha: float = 1.
 
 
 def make_unique_frequency_list(data_list: List[pd.DataFrame]) -> List[float]:

@@ -1,10 +1,15 @@
 import matplotlib
 
+from radar_chart.radarplot.utils import Line
 from radarplot.radar_data import RadarDataR2ManyMeas
 from radarplot.plotter import RadarR2Plotter
 
+LINE_STYLES = [
+    Line('tab:blue', '-', 1.1, 0.8),
+    Line('tab:red', '-', 1.6, 0.8)
+]
 
-DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ЭВМ БК-ТЗ-4К\9. VGA [кабель - НВИТ, нагрузка - БК-ТЗ-А1] (все частоты + фон)'
+DIR_NAME = r'd:\WorkSpace\Python\pythonProject\Statistic\data\ЭВМ БК-ТЗ-4К\8. DVI [кабель - доработанный, нагрузка - БК-ТЗ-А1] (все частоты + фон)'
 DIR2_NAME = None
 
 # Если надо отрубить второй набор данных, то комментить следующую строчку
@@ -23,7 +28,7 @@ if __name__ == '__main__':
         data_list = [data1, data2]
         output_file_name = DIR2_NAME + ' [Сравнение R2].png'
 
-    plotter = RadarR2Plotter(data_list, max_y_tick=18)
+    plotter = RadarR2Plotter(data_list, max_y_tick=13, line_styles=LINE_STYLES)
     # plotter = RadarR2Plotter(data_list, max_y_tick=17)
     # plotter.show()
     plotter.save(output_file_name)

@@ -30,7 +30,7 @@ class RadarDataR2ManyMeas(BaseRadarData):
         """
 
         # Пустой датасет для необработанных данных с именами столбцов
-        raw_data = pd.DataFrame(columns=["meas_name", "interface", "polarisation", "angle", "r2"])
+        raw_data = pd.DataFrame(columns=["meas_name", "interface", "polarisation", "angle", "r2", "rounding"])
 
         # Перебрать все файлы в списке и распарсить из путей данные по измерениям
         for file in self.files:
@@ -40,46 +40,38 @@ class RadarDataR2ManyMeas(BaseRadarData):
             filename = self._get_filename(file)
             angle = self.get_angle_from_filename(filename)
             r2 = self.get_r2_from_filename(filename)
+            rounding_uncertainty = (r2 - self._calc_lower_r2(r2))  # todo: уточнить расчет неопределенности округления
+            r2 = r2 - (rounding_uncertainty / 2)
 
             new_row = {'meas_name': meas_name, 'interface': interface,
-                       'polarisation': polarisation, 'angle': angle, 'r2': r2}
+                       'polarisation': polarisation, 'angle': angle, 'r2': r2,
+                       'rounding': rounding_uncertainty}
             raw_data.loc[len(raw_data)] = new_row
 
         grouped_max_in_polarisation = raw_data.groupby(['meas_name', 'angle'],
-                                                       as_index=False)['r2'].max()[['angle', 'r2']]
+                                                       as_index=False).max()[['angle', 'r2', 'rounding']]
 
         max_in_polarisation = pd.DataFrame(grouped_max_in_polarisation)
 
-        grouped_angle = max_in_polarisation.groupby('angle', as_index=False)['r2'].agg(['mean', 'std', 'count'])
+        grouped_r2_angle = max_in_polarisation.groupby('angle', as_index=False)['r2'].agg(['mean', 'std', 'count'])
+        grouped_rounding_angle = max_in_polarisation.groupby('angle', as_index=False)['rounding'].mean()
 
-        count = grouped_angle['count'].max()
+        count = grouped_r2_angle['count'].max()
 
-        # todo: учесть неопределенность из-за округления
-        grouped_angle['uncertainty'] = 2 * grouped_angle['std'] / math.sqrt(count)
+        grouped_r2_angle['uncertainty'] = 2 * grouped_r2_angle['std'] / math.sqrt(count)
+        grouped_r2_angle['total_uncertainty'] = 2 * ((grouped_r2_angle['uncertainty'] / 2) ** 2 +
+                                                     (grouped_rounding_angle['rounding'] / 2) ** 2) ** 0.5
 
         data = pd.DataFrame(columns=["angle", "main", "lower"])
-        data['angle'] = grouped_angle['angle']
-        data['main'] = grouped_angle['mean']
-        data['lower'] = grouped_angle['mean'] - grouped_angle['uncertainty']
-        data['upper'] = grouped_angle['mean'] + grouped_angle['uncertainty']
-
-
-        # Перебрать названия всех файлов папки и выбрать из них угол,
-        # на котором проводились измерения, и радиус зоны R2
-        # for filename in self.files:
-        #     angle = self.get_angle_from_filename(filename)
-        #     r2 = self.get_r2_from_filename(filename)
-        #     min_r2 = self._calc_lower_r2(r2)
-        #
-        #     new_row = {'angle': angle, 'main': r2, 'lower': min_r2}
-        #     data.loc[len(data)] = new_row
+        data['angle'] = grouped_r2_angle['angle']
+        data['main'] = grouped_r2_angle['mean']
+        data['lower'] = grouped_r2_angle['mean'] - grouped_r2_angle['total_uncertainty']
+        data['upper'] = grouped_r2_angle['mean'] + grouped_r2_angle['total_uncertainty']
 
         # Установить углы в качестве индексов и отсортировать датафрей по индексам
-
         data = data.set_index('angle').sort_index()
 
         # Добавить в конец ДатаСерии данные начальной точки, чтобы график замкнулся
-
         data = pd.concat([data, data[:0]])
 
         return data

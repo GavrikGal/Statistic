@@ -19,7 +19,7 @@ class RadarR2Plotter(BaseRadarPlotter):
         :param radar_data_list: список подготовленных данных R2 по углам для сравнения
         :param max_y_tick: Предел шкалы зон R2
         """
-        BaseRadarPlotter.__init__(self, radar_data_list, max_y_tick)
+        BaseRadarPlotter.__init__(self, radar_data_list, max_y_tick, line_styles=line_styles)
         self.make_plot()
 
     # def calc_lower_r2(self, data: pd.Series) -> pd.Series:
@@ -50,21 +50,21 @@ class RadarR2Plotter(BaseRadarPlotter):
             ax.plot(rdata.data.index.values, rdata.data['main'], color=self.lines[i_rdata].color,
                     linewidth=self.lines[i_rdata].width,
                     linestyle=self.lines[i_rdata].style,
-                    alpha=0.9, zorder=i_rdata)
+                    alpha=self.lines[i_rdata].alpha, zorder=i_rdata)
 
             # Заполнить неопределенность заливкой
             if 'lower' in rdata.data.columns:
                 ax.fill_between(rdata.data.index.values, rdata.data['main'], y2=rdata.data['lower'],
                                 color=self.lines[i_rdata].color,
-                                linewidth=0,
+                                linewidth=0.5,
                                 linestyle=self.lines[i_rdata].style,
-                                alpha=0.5, zorder=i_rdata)
+                                alpha=self.lines[i_rdata].alpha-0.5, zorder=i_rdata)
             if 'upper' in rdata.data.columns:
                 ax.fill_between(rdata.data.index.values, rdata.data['main'], y2=rdata.data['upper'],
                                 color=self.lines[i_rdata].color,
-                                linewidth=0,
+                                linewidth=0.5,
                                 linestyle=self.lines[i_rdata].style,
-                                alpha=0.5, zorder=i_rdata)
+                                alpha=self.lines[i_rdata].alpha-0.5, zorder=i_rdata)
 
         # Настройка сетки графика
         ax.set_yticks(np.arange(0, self.max_y_tick, 5))

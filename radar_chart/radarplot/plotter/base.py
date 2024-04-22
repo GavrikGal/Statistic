@@ -40,7 +40,10 @@ class BaseRadarPlotter(abc.ABC):
             self.max_y_tick = determine_max_y_tick(self.data_list)
 
         # Список настроек стилей линий todo: стек для хранения линий, больше дефолтных настроек линий
-        self.lines = line_styles
+        if line_styles is None:
+            self.lines = DEFAULT_LINE_STYLES
+        else:
+            self.lines = line_styles
 
         # # Построение графиков переопределенным методом
         # self.make_plot()
