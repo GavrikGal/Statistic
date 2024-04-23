@@ -43,8 +43,13 @@ class RadarDataR2ManyMeas(BaseRadarData):
             filename = self._get_filename(file)
             angle = self.get_angle_from_filename(filename)
             r2 = self.get_r2_from_filename(filename)
-            rounding_uncertainty = (r2 - self._calc_lower_r2(r2)) / 2  # todo: уточнить расчет неопределенности округления
-            r2 = r2 - rounding_uncertainty
+
+            # Неопределенность дискретности округления Навигатором
+            # расцениваем как прямоугольное распределение вероятностей. Поэтому
+            rounding_uncertainty = ((r2 - self._calc_lower_r2(r2)) / 2) / (3 ** 0.5)
+
+            # Принимаем за величину R2 значение в середине интервала от R2(min) до R2(max)
+            r2 = r2 - (r2 - self._calc_lower_r2(r2)) / 2
 
             new_row = {'meas_name': meas_name, 'interface': interface,
                        'polarisation': polarisation, 'angle': angle, 'r2': r2,
@@ -61,7 +66,10 @@ class RadarDataR2ManyMeas(BaseRadarData):
 
         count = grouped_r2_angle['count'].max()
 
+        # Выборочное стандартное отклонение среднего
         grouped_r2_angle['uncertainty'] = grouped_r2_angle['std'] / math.sqrt(count)
+
+        # Суммарная неопределенность с коэффициентом охвата COVERAGE_FACTOR
         grouped_r2_angle['total_uncertainty'] = COVERAGE_FACTOR * (grouped_r2_angle['uncertainty'] ** 2 +
                                                                    grouped_rounding_angle['rounding'] ** 2) ** 0.5
 
