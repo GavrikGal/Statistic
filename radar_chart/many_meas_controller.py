@@ -41,11 +41,34 @@ if __name__ == '__main__':
         # plotter.show()
         plotter.save(output_file_name)
 
-    data_list = list(map(RadarDataLevelsManyMeas, DIR_NAME))
+    level_dir_names = [DIR_NAMES[0]]
 
-    plotter = RadarLevelsPlotter(data_list, max_y_tick=50, col_count=5)
-    # plotter.show()
-    if len(data_list) < 2:
-        plotter.save(DIR_NAME[-1] + ' [Уровни].png')
-    else:
-        plotter.save(DIR_NAME[-1] + ' [Сравнение уровней].png')
+    for dir_name in DIR_NAMES:
+        data1 = RadarDataLevelsManyMeas(dir_name)
+        data_list = [data1]
+        output_file_name = dir_name + ' [Уровни].png'
+
+        # if DIR2_NAME is None:
+        #     data_list = [data1]
+        #     output_file_name = dir_name + ' [График R2].png'
+        # else:
+        #     data2 = RadarDataR2ManyMeas(DIR2_NAME)
+        #     data_list = [data1, data2]
+        #     output_file_name = DIR2_NAME + ' [Сравнение R2].png'
+
+        plotter = RadarLevelsPlotter(data_list, col_count=5)
+        # plotter = RadarR2Plotter(data_list, max_y_tick=17)
+        # plotter.show()
+        plotter.save(output_file_name)
+
+
+
+    # data_list = list(map(RadarDataLevelsManyMeas, level_dir_names))
+    #
+    # plotter = RadarLevelsPlotter(data_list, col_count=5)
+    # # plotter = RadarLevelsPlotter(data_list, max_y_tick=50, col_count=5)
+    # # plotter.show()
+    # if len(data_list) < 2:
+    #     plotter.save(level_dir_names[-1] + ' [Уровни].png')
+    # else:
+    #     plotter.save(level_dir_names[-1] + ' [Сравнение уровней].png')

@@ -4,14 +4,14 @@ import numpy as np
 import pandas as pd
 from typing import List
 
-from .base import BaseRadarData
+from .base_many_meas_data import BaseManyMeasData
 from ..utils import make_unique_frequency_list
 
 
 MIN_VALUE = 0
 
 
-class RadarDataLevelsManyMeas(BaseRadarData):
+class RadarDataLevelsManyMeas(BaseManyMeasData):
     """Класс данных для круговых диаграмм уровней излучений, измеренных в различных
     направлениях от изделия для множества измерений"""
 
@@ -21,7 +21,7 @@ class RadarDataLevelsManyMeas(BaseRadarData):
         для отображения их на круговых диаграммах
         :param dir_path: путь к папке со списком файлов данных
         """
-        BaseRadarData.__init__(self, dir_path)
+        BaseManyMeasData.__init__(self, dir_path)
 
     def read_frequency_set(self) -> List[float]:
         """
@@ -58,26 +58,53 @@ class RadarDataLevelsManyMeas(BaseRadarData):
         # signal_data = pd.DataFrame(index=np.array(self.frequencies))
         # noise_data = pd.DataFrame(index=np.array(self.frequencies))
 
-        signal_data = pd.DataFrame()
-        noise_data = pd.DataFrame()
+        # signal_data = pd.DataFrame()
+        # noise_data = pd.DataFrame()
+        raw_data = pd.DataFrame(columns=['meas_name', 'interface', 'polarisation', 'angle', 'freq', 'signal', 'noise'])
 
         # Перебрать все файлы и составить датафреймы сигналов и шумов
-        for filename in self.files:
+        for file in self.files:
             # получить величину угла из названия файла
+            meas_name = self._get_meas_name(file)
+            interface = self._get_interface(file)
+            polarisation = self._get_polarisation(file)
+            filename = self._get_filename(file)
             angle = self.get_angle_from_filename(filename)
 
             # прочитать данные частоты, уровня сигнала и шума из файла
             # частоты установить в качестве индексов DataFrame
-            file_dataframe = pd.read_csv(os.path.join(self.dir, filename), sep='\t', encoding='cp1251',
-                                         usecols=[1, 2, 3], skiprows=2, index_col=0, names=['freq', 'signal', 'noise'])
+            file_dataframe = pd.read_csv(file, sep='\t', encoding='cp1251',
+                                         usecols=[1, 2, 3], skiprows=2, names=['freq', 'signal', 'noise'])
+            file_dataframe['meas_name'] = meas_name
+            file_dataframe['interface'] = interface
+            file_dataframe['polarisation'] = polarisation
+            file_dataframe['angle'] = angle
+            file_dataframe['freq'] = file_dataframe['freq'].round(1)
+            raw_data = pd.concat([raw_data, file_dataframe], ignore_index=True)
+        print("-" * 28, 'raw_data', "-" * 28)
+        print(f'{raw_data}')
+        print("-"*60)
+
+        grouped = raw_data.groupby(['meas_name', 'angle', 'freq'],
+                                   as_index=False).max()[['meas_name', 'angle', 'freq', 'signal', 'noise']]
+
+        df_after_grouped = pd.DataFrame(grouped)
+
+        signal_data = df_after_grouped.groupby(['angle', 'freq'])['signal'].mean().round(1).unstack(level='angle')
+        # signal_data = pd.DataFrame(signals)
+
+        noise_data = df_after_grouped.groupby(['angle', 'freq'])['noise'].mean().round(1).unstack(level='angle')
+        # noise_data = pd.DataFrame(noises)
 
             # заполнить ДатаФреймы сигналов и шумов
-            signals = file_dataframe['signal']
-            noises = file_dataframe['noise']
-            signal_data[angle] = signals
-            noise_data[angle] = noises
+            # signals = file_dataframe['signal']
+            # print(f'{signals = }')
+            # noises = file_dataframe['noise']
+            # print(f'{noises = }')
+            # signal_data[angle] = signals
+            # noise_data[angle] = noises
 
-        print(signal_data)
+        # print(signal_data)
 
         # Пересмотреть все данные в ДатаФрейме шумов(noise_data), и вместо значений NaN установить
         # значение максимального шума на этой частоте с других направлений
@@ -101,6 +128,9 @@ class RadarDataLevelsManyMeas(BaseRadarData):
 
         data_s = signal_data.sort_index().T.sort_index()
         data_n = noise_data.sort_index().T.sort_index()
+
+        print(data_s)
+        print(data_n)
 
         self.data = data_s
         self.noise = data_n

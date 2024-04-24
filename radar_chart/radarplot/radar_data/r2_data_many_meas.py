@@ -5,13 +5,14 @@ import pathlib
 
 from typing import List
 
-from .base import BaseRadarData
-
+# from .base import BaseRadarData
+from .base_many_meas_data import BaseManyMeasData
 
 COVERAGE_FACTOR = 2   # Коэффициент охвата. При расчете расширенной неопределенности
 
 
-class RadarDataR2ManyMeas(BaseRadarData):
+# class RadarDataR2ManyMeas(BaseRadarData):
+class RadarDataR2ManyMeas(BaseManyMeasData):
     """Класс данных для круговых диаграмм зон R2 по углам"""
 
     def __init__(self, dir_path: str):
@@ -20,7 +21,7 @@ class RadarDataR2ManyMeas(BaseRadarData):
 
         :param dir_path: путь к папке со списком файлов данных
         """
-        BaseRadarData.__init__(self, dir_path)
+        BaseManyMeasData.__init__(self, dir_path)
 
     def make_data(self) -> pd.DataFrame:
         """
@@ -87,21 +88,21 @@ class RadarDataR2ManyMeas(BaseRadarData):
 
         return data
 
-    def read_filenames(self) -> List[pathlib.Path]:
-        """
-        Прочитать список файлов из заданной папки
+    # def read_filenames(self) -> List[pathlib.Path]:
+    #     """
+    #     Прочитать список файлов из заданной папки
+    #
+    #     :return: список текстовых файлов
+    #     """
+    #     meas_dir_list = [dirname for dirname in self.dir.iterdir() if dirname.is_dir()]
+    #
+    #     file_list = []
+    #     for meas_dir in meas_dir_list:
+    #         for polarisation in meas_dir.iterdir():
+    #             file_list.extend([meas_file for meas_file in polarisation.iterdir()
+    #                               if meas_file.is_file() and meas_file.name.endswith('.txt')])
 
-        :return: список текстовых файлов
-        """
-        meas_dir_list = [dirname for dirname in self.dir.iterdir() if dirname.is_dir()]
-
-        file_list = []
-        for meas_dir in meas_dir_list:
-            for polarisation in meas_dir.iterdir():
-                file_list.extend([meas_file for meas_file in polarisation.iterdir()
-                                  if meas_file.is_file() and meas_file.name.endswith('.txt')])
-
-        return file_list
+        # return file_list
 
     @staticmethod
     def _calc_lower_r2(r2: float) -> float:
@@ -112,18 +113,18 @@ class RadarDataR2ManyMeas(BaseRadarData):
         else:
             return r2 - 5
 
-    def _get_meas_name(self, file: pathlib.Path) -> str:
-        """Из пути к файлу измерений получить имя измерения"""
-        return file.relative_to(self.dir).parts[0]
-
-    def _get_interface(self, file: pathlib.Path) -> str:
-        """Из пути к файлу измерений получить название интерфейса"""
-        return file.relative_to(self.dir).parts[1].split(" ")[0]
-
-    def _get_polarisation(self, file: pathlib.Path) -> str:
-        """Из пути к файлу измерений получить поляризацию"""
-        return file.relative_to(self.dir).parts[1].split(" ")[1]
-
-    def _get_filename(self, file: pathlib.Path) -> str:
-        """Из пути к файлу измерений получить имя файла"""
-        return file.name
+    # def _get_meas_name(self, file: pathlib.Path) -> str:
+    #     """Из пути к файлу измерений получить имя измерения"""
+    #     return file.relative_to(self.dir).parts[0]
+    #
+    # def _get_interface(self, file: pathlib.Path) -> str:
+    #     """Из пути к файлу измерений получить название интерфейса"""
+    #     return file.relative_to(self.dir).parts[1].split(" ")[0]
+    #
+    # def _get_polarisation(self, file: pathlib.Path) -> str:
+    #     """Из пути к файлу измерений получить поляризацию"""
+    #     return file.relative_to(self.dir).parts[1].split(" ")[1]
+    #
+    # def _get_filename(self, file: pathlib.Path) -> str:
+    #     """Из пути к файлу измерений получить имя файла"""
+    #     return file.name
