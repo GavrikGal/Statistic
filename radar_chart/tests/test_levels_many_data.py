@@ -43,3 +43,22 @@ class TestLevelsManyData(unittest.TestCase):
         # Удаление созданного файла
         output_file = pathlib.Path(output_name)
         output_file.unlink()
+
+    def test_radar_many_data_level_can_save_data_to_file(self):
+        """Тестируем, что данные уровней могут быть сохранены в файл"""
+
+        import matplotlib
+        matplotlib.get_backend()
+        # matplotlib.use('TkAgg')
+
+        path = pathlib.Path(r'radar_chart/tests/data/DataSet 3/1. DVI [кабель - доработанный, нагрузка - монитор Asus]').resolve()
+        radar_data = RadarDataLevelsManyMeas(str(path))
+
+        output_name = str(path) + '_test_data.csv'
+        radar_data.save_data(output_name)
+
+        self.assertTrue(pathlib.Path(output_name).exists())
+
+        # Удаление созданного файла
+        output_file = pathlib.Path(output_name)
+        output_file.unlink()

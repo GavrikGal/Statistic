@@ -43,4 +43,3 @@ class TestR2ManyData(unittest.TestCase):
         # Удаление созданного файла
         output_file = pathlib.Path(output_name)
         output_file.unlink()
-
