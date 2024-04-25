@@ -1,3 +1,4 @@
+import math
 import os
 
 import numpy as np
@@ -17,6 +18,7 @@ class RadarDataLevelsManyMeas(BaseManyMeasData):
     направлениях от изделия для множества измерений"""
 
     output_data: pd.DataFrame
+    max_r2: int
 
     def __init__(self, dir_path: str):
         """
@@ -55,7 +57,8 @@ class RadarDataLevelsManyMeas(BaseManyMeasData):
         """
 
         # # Инициировать DataFrame
-        raw_data = pd.DataFrame(columns=['meas_name', 'interface', 'polarisation', 'angle', 'freq', 'signal', 'noise'])
+        raw_data = pd.DataFrame(columns=['meas_name', 'interface', 'polarisation', 'angle', 'freq',
+                                         'signal', 'noise', 'R2'])
 
         # Перебрать все файлы и составить датафреймы сигналов и шумов
         for file in self.files:
@@ -65,6 +68,7 @@ class RadarDataLevelsManyMeas(BaseManyMeasData):
             polarisation = self._get_polarisation(file)
             filename = self._get_filename(file)
             angle = self.get_angle_from_filename(filename)
+            r2 = self.get_r2_from_filename(filename)
 
             # прочитать данные частоты, уровня сигнала и шума из файла
             # частоты установить в качестве индексов DataFrame
@@ -75,15 +79,22 @@ class RadarDataLevelsManyMeas(BaseManyMeasData):
             file_dataframe['polarisation'] = polarisation
             file_dataframe['angle'] = angle
             file_dataframe['freq'] = file_dataframe['freq'].round(FREQ_ROUNDING)
+            file_dataframe['R2'] = r2
             raw_data = pd.concat([raw_data, file_dataframe], ignore_index=True)
 
         grouped = raw_data.groupby(['meas_name', 'angle', 'freq'],
-                                   as_index=False).max()[['meas_name', 'angle', 'freq', 'signal', 'noise']]
+                                   as_index=False).max()[['meas_name', 'angle', 'freq', 'signal', 'noise', 'R2']]
 
         df_after_grouped = pd.DataFrame(grouped)
         data_for_output = df_after_grouped.groupby(['angle', 'freq'])[['signal', 'noise']].mean().round(1)
         data_for_output = data_for_output.groupby('freq').max()
+
+        r2_for_output = df_after_grouped.groupby(['angle', 'freq'])['R2'].mean()
+        r2_for_output = r2_for_output.groupby('freq').max().max()
+        r2_for_output = math.ceil(r2_for_output)
+
         self.output_data = pd.DataFrame(data_for_output)
+        self.max_r2 = r2_for_output
 
         signal_data = df_after_grouped.groupby(['angle', 'freq'])['signal'].mean().round(1).unstack(level='angle')
         noise_data = df_after_grouped.groupby(['angle', 'freq'])['noise'].mean().round(1).unstack(level='angle')
@@ -119,6 +130,5 @@ class RadarDataLevelsManyMeas(BaseManyMeasData):
     def save_data(self, path: str = None) -> None:
         """Сохранить данные в файл"""
         if not path:
-            path = str(self.dir) + ' [Max].csv'
+            path = str(self.dir) + f' [R2={self.max_r2}].csv'
         self.output_data.to_csv(path)
-
