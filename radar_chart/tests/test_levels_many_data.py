@@ -31,7 +31,7 @@ class TestLevelsManyData(unittest.TestCase):
         """Тестируем, что создается файл графика Уровней"""
         import matplotlib
         matplotlib.get_backend()
-        matplotlib.use('QtAgg')
+        # matplotlib.use('QtAgg')
         path = pathlib.Path(
             r'radar_chart/tests/data/DataSet 3/1. DVI [кабель - доработанный, нагрузка - монитор Asus]').resolve()
         output_name = str(path) + '_test_plot.png'
