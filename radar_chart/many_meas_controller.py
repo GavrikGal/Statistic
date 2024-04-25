@@ -33,6 +33,8 @@ if __name__ == '__main__':
 
     for dir_name in DIR_NAMES:
         data1 = RadarDataLevelsManyMeas(dir_name)
+        data1.save_data()
+
         data_list = [data1]
         output_file_name = dir_name + ' [Уровни].png'
 

@@ -9,11 +9,14 @@ from ..utils import make_unique_frequency_list
 
 
 MIN_VALUE = 0
+FREQ_ROUNDING = 0
 
 
 class RadarDataLevelsManyMeas(BaseManyMeasData):
     """Класс данных для круговых диаграмм уровней излучений, измеренных в различных
     направлениях от изделия для множества измерений"""
+
+    output_data: pd.DataFrame
 
     def __init__(self, dir_path: str):
         """
@@ -71,19 +74,18 @@ class RadarDataLevelsManyMeas(BaseManyMeasData):
             file_dataframe['interface'] = interface
             file_dataframe['polarisation'] = polarisation
             file_dataframe['angle'] = angle
-            file_dataframe['freq'] = file_dataframe['freq'].round(1)
+            file_dataframe['freq'] = file_dataframe['freq'].round(FREQ_ROUNDING)
             raw_data = pd.concat([raw_data, file_dataframe], ignore_index=True)
-        print("-" * 28, 'raw_data', "-" * 28)
-        print(f'{raw_data}')
-        print("-"*60)
 
         grouped = raw_data.groupby(['meas_name', 'angle', 'freq'],
                                    as_index=False).max()[['meas_name', 'angle', 'freq', 'signal', 'noise']]
 
         df_after_grouped = pd.DataFrame(grouped)
+        data_for_output = df_after_grouped.groupby(['angle', 'freq'])[['signal', 'noise']].mean().round(1)
+        data_for_output = data_for_output.groupby('freq').max()
+        self.output_data = pd.DataFrame(data_for_output)
 
         signal_data = df_after_grouped.groupby(['angle', 'freq'])['signal'].mean().round(1).unstack(level='angle')
-
         noise_data = df_after_grouped.groupby(['angle', 'freq'])['noise'].mean().round(1).unstack(level='angle')
 
         # Пересмотреть все данные в ДатаФрейме шумов(noise_data), и вместо значений NaN установить
@@ -113,3 +115,10 @@ class RadarDataLevelsManyMeas(BaseManyMeasData):
         self.noise = data_n
 
         return self.data
+
+    def save_data(self, path: str = None) -> None:
+        """Сохранить данные в файл"""
+        if not path:
+            path = str(self.dir) + ' [Max].txt'
+        self.output_data.to_csv(path)
+
