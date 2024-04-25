@@ -51,15 +51,7 @@ class RadarDataLevelsManyMeas(BaseManyMeasData):
         :return: ДатаСерия с углами, в качестве индексов, и уровнями сигнала, в качестве значений
         """
 
-        # Получить список всех частот из всех файлов
-        # self.frequencies = self.read_frequency_set()
-
-        # # Инициировать DataFrame сигналов и шумов с частотами в качестве индексов
-        # signal_data = pd.DataFrame(index=np.array(self.frequencies))
-        # noise_data = pd.DataFrame(index=np.array(self.frequencies))
-
-        # signal_data = pd.DataFrame()
-        # noise_data = pd.DataFrame()
+        # # Инициировать DataFrame
         raw_data = pd.DataFrame(columns=['meas_name', 'interface', 'polarisation', 'angle', 'freq', 'signal', 'noise'])
 
         # Перебрать все файлы и составить датафреймы сигналов и шумов
@@ -91,20 +83,8 @@ class RadarDataLevelsManyMeas(BaseManyMeasData):
         df_after_grouped = pd.DataFrame(grouped)
 
         signal_data = df_after_grouped.groupby(['angle', 'freq'])['signal'].mean().round(1).unstack(level='angle')
-        # signal_data = pd.DataFrame(signals)
 
         noise_data = df_after_grouped.groupby(['angle', 'freq'])['noise'].mean().round(1).unstack(level='angle')
-        # noise_data = pd.DataFrame(noises)
-
-            # заполнить ДатаФреймы сигналов и шумов
-            # signals = file_dataframe['signal']
-            # print(f'{signals = }')
-            # noises = file_dataframe['noise']
-            # print(f'{noises = }')
-            # signal_data[angle] = signals
-            # noise_data[angle] = noises
-
-        # print(signal_data)
 
         # Пересмотреть все данные в ДатаФрейме шумов(noise_data), и вместо значений NaN установить
         # значение максимального шума на этой частоте с других направлений
@@ -128,9 +108,6 @@ class RadarDataLevelsManyMeas(BaseManyMeasData):
 
         data_s = signal_data.sort_index().T.sort_index()
         data_n = noise_data.sort_index().T.sort_index()
-
-        print(data_s)
-        print(data_n)
 
         self.data = data_s
         self.noise = data_n
