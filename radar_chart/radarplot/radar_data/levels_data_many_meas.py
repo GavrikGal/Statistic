@@ -119,6 +119,6 @@ class RadarDataLevelsManyMeas(BaseManyMeasData):
     def save_data(self, path: str = None) -> None:
         """Сохранить данные в файл"""
         if not path:
-            path = str(self.dir) + ' [Max].txt'
+            path = str(self.dir) + ' [Max].csv'
         self.output_data.to_csv(path)
 
