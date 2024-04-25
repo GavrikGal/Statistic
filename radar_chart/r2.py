@@ -24,6 +24,5 @@ if __name__ == '__main__':
         output_file_name = DIR2_NAME + ' [Сравнение R2].png'
 
     plotter = RadarR2Plotter(data_list, max_y_tick=23)
-    # plotter = RadarR2Plotter(data_list, max_y_tick=17)
     # plotter.show()
     plotter.save(output_file_name)

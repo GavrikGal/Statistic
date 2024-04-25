@@ -45,9 +45,6 @@ class BaseRadarPlotter(abc.ABC):
         else:
             self.lines = line_styles
 
-        # # Построение графиков переопределенным методом
-        # self.make_plot()
-
     @abc.abstractmethod
     def make_plot(self):
         """Из данных о зонах R2 или Уровней сигналов в self.rdata должен подготовить графики для отображения"""

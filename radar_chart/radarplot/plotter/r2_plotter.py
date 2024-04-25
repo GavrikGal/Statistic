@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 from typing import List
 
 from radar_chart.radarplot.plotter.base import BaseRadarPlotter
@@ -21,16 +20,6 @@ class RadarR2Plotter(BaseRadarPlotter):
         """
         BaseRadarPlotter.__init__(self, radar_data_list, max_y_tick, line_styles=line_styles)
         self.make_plot()
-
-    # def calc_lower_r2(self, data: pd.Series) -> pd.Series:
-    #     """Вычисляет нижний уровень неопределенности зоны R2"""
-    #     min_data = []
-    #     for r2 in data:
-    #         if r2 <= 10:
-    #             min_data.append(r2 - 1)
-    #         else:
-    #             min_data.append(r2 - 5)
-    #     return pd.Series(min_data)
 
     def make_plot(self):
         """Из данных о зонах R2 на различных углах подготавливает круговые диаграммы"""
